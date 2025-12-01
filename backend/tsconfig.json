@@ -15,8 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["node"],
-    "typeRoots": ["./types"]
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

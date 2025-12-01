@@ -1,73 +1,117 @@
-# Welcome to your Lovable project
+# 🎓 Sistem Absensi Mahasiswa
 
-## Project info
+Sistem absensi kampus berbasis web menggunakan React + TypeScript untuk frontend dan Express + MySQL untuk backend.
 
-**URL**: https://lovable.dev/projects/9fa0cf23-ce3f-4d88-92f1-c5c8f629b33f
+## ✨ Fitur Utama
 
-## How can I edit this code?
+### 👨‍💼 Admin
+- ✅ Dashboard dengan statistik lengkap
+- ✅ CRUD Mahasiswa (Create, Read, Update, Delete)
+- ✅ CRUD Dosen (Create, Read, Update, Delete)
+- ✅ Management Mata Kuliah
+- ✅ Management Kelas
+- ✅ Laporan Kehadiran
+- ✅ Management Device
 
-There are several ways of editing your application.
+### 👨‍🏫 Dosen
+- 📊 Dashboard dengan statistik kelas
+- 📝 Kelola sesi absensi
+- 👥 Lihat daftar mahasiswa per kelas
+- 📈 Monitor kehadiran mahasiswa
 
-**Use Lovable**
+### 👨‍🎓 Mahasiswa
+- 📊 Dashboard kehadiran pribadi
+- 📚 Lihat kelas terdaftar
+- ✅ Submit absensi
+- 📈 Lihat statistik kehadiran
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9fa0cf23-ce3f-4d88-92f1-c5c8f629b33f) and start prompting.
+## 🚀 Quick Start
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
+- Node.js 18+ 
+- MySQL 8.0
+- XAMPP (untuk MySQL) atau MySQL Server standalone
 
-**Use your preferred IDE**
+### 1. Setup Database
+```bash
+# Start XAMPP MySQL (port 3308)
+# Import database schema
+mysql -u root -p absensi_kampus < backend/database_import.sql
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 2. Setup Backend
+```bash
+cd backend
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Compile TypeScript
+npx tsc src/index.ts --outDir dist --esModuleInterop --resolveJsonModule --skipLibCheck --target ES2020 --module commonjs
 
-Follow these steps:
+# Run server
+node dist/index.js
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Backend: **http://localhost:3001**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Setup Frontend
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Frontend: **http://localhost:8080**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔐 Login
+- Username: `admin`
+- Password: `admin123`
 
-**Use GitHub Codespaces**
+## 📁 Struktur
+Lihat [STRUKTUR_FOLDER.md](./STRUKTUR_FOLDER.md)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🛠️ Tech Stack
 
-## What technologies are used for this project?
+**Frontend:** React, TypeScript, Vite, Tailwind CSS, shadcn/ui, TanStack Query
 
-This project is built with:
+**Backend:** Node.js, Express, TypeScript, MySQL, JWT, bcrypt
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📡 API Endpoints
 
-## How can I deploy this project?
+### Auth
+- POST `/api/auth/login` - Login
+- POST `/api/auth/logout` - Logout
+- GET `/api/auth/me` - Get current user
 
-Simply open [Lovable](https://lovable.dev/projects/9fa0cf23-ce3f-4d88-92f1-c5c8f629b33f) and click on Share -> Publish.
+### CRUD Endpoints
+- `/api/mahasiswa` - Mahasiswa CRUD
+- `/api/dosen` - Dosen CRUD
+- `/api/matakuliah` - Mata Kuliah CRUD
+- `/api/kelas` - Kelas CRUD
+- `/api/enrollment` - Enrollment management
+- `/api/sesi` - Sesi Absensi CRUD
+- `/api/absensi` - Absensi records
+- `/api/device` - Device management
 
-## Can I connect a custom domain to my Lovable project?
+### Reports
+- GET `/api/report/mahasiswa/:id` - Student report
+- GET `/api/report/kelas/:id` - Class report
+- GET `/api/stats/admin` - Admin statistics
+- GET `/api/stats/dosen/:id` - Lecturer stats
+- GET `/api/stats/mahasiswa/:id` - Student stats
 
-Yes, you can!
+## 🗄️ Database Tables
+- users, mahasiswa, dosen, mata_kuliah, kelas
+- enrollment, sesi_absensi, absensi, devices
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📝 TODO
+- [ ] Face recognition
+- [ ] Real-time notifications
+- [ ] PDF/Excel export
+- [ ] Mobile app
+- [ ] QR Code attendance
+- [ ] Geolocation verification
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📄 License
+MIT License
+
+---
+Made with ❤️ for Indonesian Universities

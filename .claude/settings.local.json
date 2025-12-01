@@ -7,7 +7,8 @@
       "Bash(curl:*)",
       "Bash(lsof:*)",
       "Bash(npm run dev)",
-      "Bash(nc:*)"
+      "Bash(nc:*)",
+      "Bash(open:*)"
     ],
     "deny": [],
     "ask": []
