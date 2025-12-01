@@ -127,7 +127,7 @@ const AdminDashboardHome = () => {
             <ul className="text-sm space-y-1 mt-4">
               <li>• Kelola data mahasiswa dan dosen</li>
               <li>• Atur mata kuliah dan kelas</li>
-              <li>• Lihat laporan kehadiran</li>
+              <li>• Kelola enrollment mahasiswa</li>
               <li>• Monitor sesi absensi</li>
             </ul>
           </CardContent>

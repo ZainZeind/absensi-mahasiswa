@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -24,6 +25,7 @@ const Login = () => {
       toast({
         title: "Login berhasil",
         description: "Selamat datang kembali!",
+        duration: 3000,
       });
       navigate("/dashboard");
     } catch (error: any) {
@@ -31,6 +33,7 @@ const Login = () => {
         title: "Login gagal",
         description: error.response?.data?.message || "Username atau password salah",
         variant: "destructive",
+        duration: 10000,
       });
     } finally {
       setIsLoading(false);
@@ -39,8 +42,17 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
+      <Card className="w-full max-w-md relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-4 left-4"
+          onClick={() => navigate("/")}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Kembali
+        </Button>
+        <CardHeader className="space-y-1 pt-12">
           <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
           <CardDescription className="text-center">
             Masukkan username dan password Anda

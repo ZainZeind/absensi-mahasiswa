@@ -2,7 +2,7 @@ import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { 
-  Users, BookOpen, Calendar, BarChart3, Settings, 
+  Users, BookOpen, Calendar, Settings, 
   LogOut, Home, GraduationCap, UserCog, ClipboardList, UserPlus
 } from "lucide-react";
 
@@ -13,10 +13,10 @@ import DosenManagement from "./admin/DosenManagement";
 import MataKuliahManagement from "./admin/MataKuliahManagement";
 import KelasManagement from "./admin/KelasManagement";
 import EnrollmentManagement from "./admin/EnrollmentManagement";
-import ReportManagement from "./admin/ReportManagement";
 
 // Dosen Pages  
 import DosenDashboard from "./lecturer/LecturerDashboard";
+import CameraAbsensi from "./lecturer/CameraAbsensi";
 
 // Mahasiswa Pages
 import MahasiswaDashboard from "./student/StudentDashboard";
@@ -37,10 +37,14 @@ const Dashboard = () => {
 
   // Sidebar untuk Admin
   const AdminSidebar = () => (
-    <aside className="w-64 bg-white border-r min-h-screen p-4">
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-blue-600">Absensi Kampus</h2>
-        <p className="text-sm text-gray-600">Admin Panel</p>
+    <aside className="w-64 glass-strong border-r border-white/20 min-h-screen p-4">
+      <div className="mb-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+          <span className="text-2xl font-bold text-white">UI</span>
+        </div>
+        <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Teknik Industri</h2>
+        <p className="text-xs text-gray-600 font-medium">Universitas Diponegoro</p>
+        <p className="text-xs text-gray-500 mt-1">Admin Panel</p>
       </div>
       
       <nav className="space-y-2">
@@ -103,16 +107,6 @@ const Dashboard = () => {
             Enrollment
           </Button>
         </Link>
-        
-        <Link to="/dashboard/report">
-          <Button 
-            variant={isActive("/dashboard/report") ? "default" : "ghost"} 
-            className="w-full justify-start"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Laporan
-          </Button>
-        </Link>
       </nav>
 
       <div className="mt-auto pt-8 border-t">
@@ -146,7 +140,6 @@ const Dashboard = () => {
             <Route path="matakuliah" element={<MataKuliahManagement />} />
             <Route path="kelas" element={<KelasManagement />} />
             <Route path="enrollment" element={<EnrollmentManagement />} />
-            <Route path="report" element={<ReportManagement />} />
           </Routes>
         </main>
       </div>
@@ -154,7 +147,12 @@ const Dashboard = () => {
   }
 
   if (user.role === "dosen") {
-    return <DosenDashboard />;
+    return (
+      <Routes>
+        <Route index element={<DosenDashboard />} />
+        <Route path="camera-absensi" element={<CameraAbsensi />} />
+      </Routes>
+    );
   }
 
   if (user.role === "mahasiswa") {

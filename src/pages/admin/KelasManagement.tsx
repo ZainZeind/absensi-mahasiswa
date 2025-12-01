@@ -13,14 +13,17 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Kelas {
   id: number;
-  kode: string;
   nama: string;
   matkul_id: number;
   dosen_id: number;
-  semester: number;
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  ruang: string;
+  kapasitas: number;
+  semester: string;
   tahun_ajaran: string;
-  ruangan?: string;
-  matakuliah_nama?: string;
+  mata_kuliah_nama?: string;
   dosen_nama?: string;
 }
 
@@ -42,22 +45,28 @@ const KelasManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    kode: "",
     nama: "",
     matkul_id: "",
     dosen_id: "",
-    semester: 1,
-    tahun_ajaran: "2024/2025",
-    ruangan: ""
+    hari: "Senin",
+    jam_mulai: "",
+    jam_selesai: "",
+    ruang: "",
+    kapasitas: 30,
+    semester: "Ganjil",
+    tahun_ajaran: "2024/2025"
   });
 
-  const { data: kelasData, isLoading } = useQuery({
+  const { data: kelasData, isLoading, error } = useQuery({
     queryKey: ["kelas"],
     queryFn: async () => {
       const response = await apiGet<Kelas[]>("/kelas");
+      console.log('Kelas data received:', response);
       return response.data;
     }
   });
+
+  console.log('Kelas list:', kelasData, 'Loading:', isLoading, 'Error:', error);
 
   const { data: matakuliahData } = useQuery({
     queryKey: ["matakuliah"],
@@ -79,14 +88,16 @@ const KelasManagement = () => {
     mutationFn: (data: any) => apiPost("/kelas", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["kelas"] });
-      toast({ title: "Berhasil", description: "Kelas berhasil ditambahkan" });
+      toast({ title: "Berhasil", description: "Kelas berhasil ditambahkan", duration: 3000 });
       handleCloseDialog();
     },
     onError: (error: any) => {
+      console.error('Error creating kelas:', error);
       toast({ 
         title: "Error", 
-        description: error.message || "Gagal menambahkan kelas",
-        variant: "destructive" 
+        description: error.response?.data?.message || error.message || "Gagal menambahkan kelas",
+        variant: "destructive",
+        duration: 7000
       });
     }
   });
@@ -125,13 +136,16 @@ const KelasManagement = () => {
   const handleEdit = (kelas: Kelas) => {
     setEditingId(kelas.id);
     setFormData({
-      kode: kelas.kode,
       nama: kelas.nama,
       matkul_id: kelas.matkul_id.toString(),
       dosen_id: kelas.dosen_id.toString(),
+      hari: kelas.hari,
+      jam_mulai: kelas.jam_mulai,
+      jam_selesai: kelas.jam_selesai,
+      ruang: kelas.ruang,
+      kapasitas: kelas.kapasitas,
       semester: kelas.semester,
-      tahun_ajaran: kelas.tahun_ajaran,
-      ruangan: kelas.ruangan || ""
+      tahun_ajaran: kelas.tahun_ajaran
     });
     setIsDialogOpen(true);
   };
@@ -146,13 +160,16 @@ const KelasManagement = () => {
     setIsDialogOpen(false);
     setEditingId(null);
     setFormData({ 
-      kode: "", 
-      nama: "", 
-      matkul_id: "", 
-      dosen_id: "", 
-      semester: 1, 
-      tahun_ajaran: "2024/2025",
-      ruangan: ""
+      nama: "",
+      matkul_id: "",
+      dosen_id: "",
+      hari: "Senin",
+      jam_mulai: "",
+      jam_selesai: "",
+      ruang: "",
+      kapasitas: 30,
+      semester: "Ganjil",
+      tahun_ajaran: "2024/2025"
     });
   };
 
@@ -177,15 +194,9 @@ const KelasManagement = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Kode Kelas</Label>
-                    <Input value={formData.kode} onChange={(e) => setFormData({ ...formData, kode: e.target.value })} required />
-                  </div>
-                  <div>
-                    <Label>Nama Kelas</Label>
-                    <Input value={formData.nama} onChange={(e) => setFormData({ ...formData, nama: e.target.value })} required />
-                  </div>
+                <div>
+                  <Label>Nama Kelas</Label>
+                  <Input value={formData.nama} onChange={(e) => setFormData({ ...formData, nama: e.target.value })} required placeholder="Contoh: Kelas A" />
                 </div>
                 
                 <div>
@@ -222,18 +233,60 @@ const KelasManagement = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
+                    <Label>Hari</Label>
+                    <Select value={formData.hari} onValueChange={(value) => setFormData({ ...formData, hari: value })} required>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Senin">Senin</SelectItem>
+                        <SelectItem value="Selasa">Selasa</SelectItem>
+                        <SelectItem value="Rabu">Rabu</SelectItem>
+                        <SelectItem value="Kamis">Kamis</SelectItem>
+                        <SelectItem value="Jumat">Jumat</SelectItem>
+                        <SelectItem value="Sabtu">Sabtu</SelectItem>
+                        <SelectItem value="Minggu">Minggu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Ruang</Label>
+                    <Input value={formData.ruang} onChange={(e) => setFormData({ ...formData, ruang: e.target.value })} required placeholder="Contoh: A301" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Jam Mulai</Label>
+                    <Input type="time" value={formData.jam_mulai} onChange={(e) => setFormData({ ...formData, jam_mulai: e.target.value })} required />
+                  </div>
+                  <div>
+                    <Label>Jam Selesai</Label>
+                    <Input type="time" value={formData.jam_selesai} onChange={(e) => setFormData({ ...formData, jam_selesai: e.target.value })} required />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Kapasitas</Label>
+                    <Input type="number" min="1" value={formData.kapasitas} onChange={(e) => setFormData({ ...formData, kapasitas: parseInt(e.target.value) })} required />
+                  </div>
+                  <div>
                     <Label>Semester</Label>
-                    <Input type="number" min="1" max="14" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })} required />
+                    <Select value={formData.semester} onValueChange={(value) => setFormData({ ...formData, semester: value })} required>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ganjil">Ganjil</SelectItem>
+                        <SelectItem value="Genap">Genap</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Tahun Ajaran</Label>
                     <Input value={formData.tahun_ajaran} onChange={(e) => setFormData({ ...formData, tahun_ajaran: e.target.value })} required placeholder="2024/2025" />
                   </div>
-                </div>
-
-                <div>
-                  <Label>Ruangan</Label>
-                  <Input value={formData.ruangan} onChange={(e) => setFormData({ ...formData, ruangan: e.target.value })} placeholder="Contoh: A301" />
                 </div>
               </div>
               <DialogFooter className="mt-6">
@@ -254,26 +307,26 @@ const KelasManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Kode</TableHead>
                 <TableHead>Nama Kelas</TableHead>
                 <TableHead>Mata Kuliah</TableHead>
                 <TableHead>Dosen</TableHead>
+                <TableHead>Jadwal</TableHead>
+                <TableHead>Ruang</TableHead>
+                <TableHead>Kapasitas</TableHead>
                 <TableHead>Semester</TableHead>
-                <TableHead>Tahun Ajaran</TableHead>
-                <TableHead>Ruangan</TableHead>
                 <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {kelasData?.map((kelas) => (
                 <TableRow key={kelas.id}>
-                  <TableCell className="font-medium">{kelas.kode}</TableCell>
-                  <TableCell>{kelas.nama}</TableCell>
-                  <TableCell>{kelas.matakuliah_nama || "-"}</TableCell>
+                  <TableCell className="font-medium">{kelas.nama}</TableCell>
+                  <TableCell>{kelas.mata_kuliah_nama || "-"}</TableCell>
                   <TableCell>{kelas.dosen_nama || "-"}</TableCell>
-                  <TableCell>{kelas.semester}</TableCell>
-                  <TableCell>{kelas.tahun_ajaran}</TableCell>
-                  <TableCell>{kelas.ruangan || "-"}</TableCell>
+                  <TableCell>{kelas.hari}, {kelas.jam_mulai}-{kelas.jam_selesai}</TableCell>
+                  <TableCell>{kelas.ruang}</TableCell>
+                  <TableCell>{kelas.kapasitas}</TableCell>
+                  <TableCell>{kelas.semester} {kelas.tahun_ajaran}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button size="sm" variant="outline" onClick={() => handleEdit(kelas)}>
                       <Pencil className="h-4 w-4" />

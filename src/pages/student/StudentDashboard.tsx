@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet, apiPost } from "@/services/api";
-import { BookOpen, Calendar, Clock, LogOut, Camera, CheckCircle } from "lucide-react";
+import { BookOpen, Calendar, Clock, LogOut, Camera, CheckCircle, Video, X, Upload } from "lucide-react";
 
 interface EnrolledKelas {
   id: number;
@@ -52,6 +52,12 @@ const StudentDashboard = () => {
   const [selectedSesi, setSelectedSesi] = useState<number | null>(null);
   const [isAbsenDialogOpen, setIsAbsenDialogOpen] = useState(false);
   const [fotoWajah, setFotoWajah] = useState<File | null>(null);
+  const [captureMode, setCaptureMode] = useState<'upload' | 'camera'>('camera');
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Fetch kelas yang diikuti mahasiswa
   const { data: enrolledKelas } = useQuery({
@@ -120,6 +126,7 @@ const StudentDashboard = () => {
     formData.append("sesi_id", selectedSesi.toString());
     formData.append("mahasiswa_id", user?.id.toString() || "");
     formData.append("status", "hadir");
+    formData.append("metode", "webcam");
     if (fotoWajah) {
       formData.append("foto_wajah", fotoWajah);
     }
@@ -133,15 +140,76 @@ const StudentDashboard = () => {
   };
 
   const handleCloseAbsenDialog = () => {
+    stopCamera();
     setIsAbsenDialogOpen(false);
     setSelectedSesi(null);
     setFotoWajah(null);
+    setCapturedImage(null);
+    setCaptureMode('camera');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFotoWajah(e.target.files[0]);
+      setCapturedImage(null);
     }
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user', width: 640, height: 480 } 
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      }
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.",
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        setCapturedImage(imageData);
+        stopCamera();
+        
+        // Convert base64 to file
+        fetch(imageData)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+            setFotoWajah(file);
+          });
+      }
+    }
+  };
+
+  const retakePhoto = () => {
+    setCapturedImage(null);
+    setFotoWajah(null);
+    startCamera();
   };
 
   const stats = {
@@ -152,16 +220,20 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
+      <header className="glass-strong shadow-lg border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+              <span className="text-xl font-bold text-white">UI</span>
+            </div>
+            <Avatar className="h-12 w-12 border-2 border-white/40 shadow-md">
               <AvatarImage src={user?.foto_wajah} />
-              <AvatarFallback>{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard Mahasiswa</h1>
-              <p className="text-sm text-gray-600">{user?.username}</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Mahasiswa</h1>
+              <p className="text-xs text-gray-600 font-medium">Teknik Industri - Universitas Diponegoro</p>
+              <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
             </div>
           </div>
           <Button onClick={logout} variant="outline">
@@ -357,35 +429,148 @@ const StudentDashboard = () => {
 
         {/* Dialog Absen */}
         <Dialog open={isAbsenDialogOpen} onOpenChange={setIsAbsenDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Submit Absensi</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmitAbsen}>
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Upload Foto Wajah (Opsional)</label>
-                  <Input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="mt-2"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Upload foto wajah untuk verifikasi kehadiran
-                  </p>
+                {/* Mode Toggle */}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={captureMode === 'camera' ? 'default' : 'outline'}
+                    className="flex-1"
+                    onClick={() => {
+                      setCaptureMode('camera');
+                      setCapturedImage(null);
+                      setFotoWajah(null);
+                      if (!isCameraActive && !capturedImage) {
+                        startCamera();
+                      }
+                    }}
+                  >
+                    <Video className="mr-2 h-4 w-4" />
+                    Ambil Foto
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={captureMode === 'upload' ? 'default' : 'outline'}
+                    className="flex-1"
+                    onClick={() => {
+                      setCaptureMode('upload');
+                      stopCamera();
+                      setCapturedImage(null);
+                    }}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload File
+                  </Button>
                 </div>
-                {fotoWajah && (
-                  <div className="text-sm text-muted-foreground">
-                    File dipilih: {fotoWajah.name}
+
+                {/* Camera Mode */}
+                {captureMode === 'camera' && (
+                  <div className="space-y-4">
+                    <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                      {!capturedImage ? (
+                        <>
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                          {!isCameraActive && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                              <Button onClick={startCamera} size="lg">
+                                <Camera className="mr-2 h-5 w-5" />
+                                Aktifkan Kamera
+                              </Button>
+                            </div>
+                          )}
+                          <canvas ref={canvasRef} className="hidden" />
+                          
+                          {/* Camera Overlay */}
+                          {isCameraActive && (
+                            <div className="absolute inset-0 pointer-events-none">
+                              <div className="absolute inset-0 border-4 border-white/30 rounded-lg m-8"></div>
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                <div className="w-48 h-64 border-2 border-white/50 rounded-full"></div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="relative">
+                          <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={retakePhoto}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Ambil Ulang
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {isCameraActive && !capturedImage && (
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={capturePhoto}
+                          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          size="lg"
+                        >
+                          <Camera className="mr-2 h-5 w-5" />
+                          Ambil Foto
+                        </Button>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground text-center">
+                      Posisikan wajah Anda di tengah frame untuk hasil terbaik
+                    </p>
+                  </div>
+                )}
+
+                {/* Upload Mode */}
+                {captureMode === 'upload' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Upload Foto Wajah</label>
+                      <Input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload foto wajah untuk verifikasi kehadiran
+                      </p>
+                    </div>
+                    {fotoWajah && (
+                      <div className="glass-card p-4 rounded-lg">
+                        <p className="text-sm font-medium text-gray-700">File dipilih:</p>
+                        <p className="text-sm text-muted-foreground">{fotoWajah.name}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+
               <DialogFooter className="mt-6">
                 <Button type="button" variant="outline" onClick={handleCloseAbsenDialog}>
                   Batal
                 </Button>
-                <Button type="submit" disabled={absensiMutation.isPending}>
+                <Button 
+                  type="submit" 
+                  disabled={absensiMutation.isPending || (!fotoWajah && !capturedImage)}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
                   {absensiMutation.isPending ? "Mengirim..." : "Kirim Absensi"}
                 </Button>
               </DialogFooter>

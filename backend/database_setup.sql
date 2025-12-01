@@ -136,25 +136,19 @@ CREATE TABLE IF NOT EXISTS devices (
 CREATE TABLE IF NOT EXISTS sesi_absensi (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     kelas_id INT UNSIGNED NOT NULL,
-    dosen_id INT UNSIGNED NOT NULL,
-    device_id INT UNSIGNED NOT NULL,
-    judul_sesi VARCHAR(200) NOT NULL,
-    waktu_mulai TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    waktu_selesai TIMESTAMP NULL,
-    durasi_menit INT NOT NULL DEFAULT 15 CHECK (durasi_menit >= 1 AND durasi_menit <= 180),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    kode_sesi VARCHAR(20) NOT NULL UNIQUE,
+    tanggal DATE NOT NULL,
+    jam_mulai TIME NOT NULL,
+    jam_selesai TIME NULL,
+    materi TEXT NULL,
+    status ENUM('scheduled', 'active', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (kelas_id) REFERENCES kelas(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (dosen_id) REFERENCES dosen(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    INDEX idx_kelas_dosen (kelas_id, dosen_id),
-    INDEX idx_kode_sesi (kode_sesi),
-    INDEX idx_waktu_mulai (waktu_mulai),
-    INDEX idx_is_active (is_active)
+    INDEX idx_kelas (kelas_id),
+    INDEX idx_tanggal (tanggal),
+    INDEX idx_status (status)
 );
 
 -- Table enrollment (Many-to-Many: Kelas x Mahasiswa)
@@ -178,30 +172,26 @@ CREATE TABLE IF NOT EXISTS enrollment (
 -- Table absensi
 CREATE TABLE IF NOT EXISTS absensi (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    sesi_absensi_id INT UNSIGNED NOT NULL,
+    sesi_id INT UNSIGNED NOT NULL,
     mahasiswa_id INT UNSIGNED NOT NULL,
     waktu_absen TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status ENUM('hadir', 'izin', 'sakit', 'alfa') NOT NULL DEFAULT 'hadir',
-    lokasi_absen VARCHAR(100) NULL,
-    confidence DECIMAL(5,4) NULL CHECK (confidence >= 0 AND confidence <= 1),
+    metode ENUM('face_recognition_device', 'webcam', 'manual') NOT NULL DEFAULT 'webcam',
+    lokasi VARCHAR(100) NULL,
     foto_wajah VARCHAR(255) NULL,
-    device_id INT UNSIGNED NOT NULL,
-    ip_address VARCHAR(45) NULL,
-    user_agent TEXT NULL,
-    is_validated BOOLEAN NOT NULL DEFAULT FALSE,
-    keterangan TEXT NULL,
+    device_id INT UNSIGNED NULL,
+    catatan TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (sesi_absensi_id) REFERENCES sesi_absensi(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (sesi_id) REFERENCES sesi_absensi(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    UNIQUE KEY unique_absensi (sesi_absensi_id, mahasiswa_id),
-    INDEX idx_sesi_mahasiswa (sesi_absensi_id, mahasiswa_id),
+    UNIQUE KEY unique_absensi (sesi_id, mahasiswa_id),
+    INDEX idx_sesi_mahasiswa (sesi_id, mahasiswa_id),
     INDEX idx_waktu_absen (waktu_absen),
     INDEX idx_status (status),
-    INDEX idx_is_validated (is_validated)
+    INDEX idx_metode (metode)
 );
 
 -- ============================================

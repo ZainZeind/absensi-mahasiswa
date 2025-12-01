@@ -48,8 +48,9 @@ const DosenManagement = () => {
     onError: (error: any) => {
       toast({ 
         title: "Error", 
-        description: error.response?.data?.message || "Gagal menambahkan dosen",
-        variant: "destructive" 
+        description: error.message || "Gagal menambahkan dosen",
+        variant: "destructive",
+        duration: 7000
       });
     }
   });
@@ -65,7 +66,8 @@ const DosenManagement = () => {
       toast({ 
         title: "Error", 
         description: error.response?.data?.message || "Gagal mengupdate dosen",
-        variant: "destructive" 
+        variant: "destructive",
+        duration: 7000
       });
     }
   });
@@ -80,7 +82,8 @@ const DosenManagement = () => {
       toast({ 
         title: "Error", 
         description: error.response?.data?.message || "Gagal menghapus dosen",
-        variant: "destructive" 
+        variant: "destructive",
+        duration: 7000
       });
     }
   });

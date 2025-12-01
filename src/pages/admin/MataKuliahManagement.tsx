@@ -49,7 +49,8 @@ const MataKuliahManagement = () => {
       toast({ 
         title: "Error", 
         description: error.message || "Gagal menambahkan mata kuliah",
-        variant: "destructive" 
+        variant: "destructive",
+        duration: 7000
       });
     }
   });

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet, apiPost, apiPut } from "@/services/api";
-import { BookOpen, Users, Calendar, LogOut, Plus } from "lucide-react";
+import { BookOpen, Users, Calendar, LogOut, Plus, Camera } from "lucide-react";
 
 interface Kelas {
   id: number;
   nama: string;
-  matakuliah_nama: string;
+  mata_kuliah_nama: string;
   dosen_nama: string;
   total_mahasiswa?: number;
 }
@@ -25,11 +26,11 @@ interface SesiAbsensi {
   id: number;
   kelas_id: number;
   kelas_nama: string;
-  matakuliah_nama: string;
+  mata_kuliah_nama: string;
   tanggal: string;
   waktu_mulai: string;
   waktu_selesai: string;
-  status: "active" | "completed" | "scheduled";
+  status: "active" | "completed" | "scheduled" | "cancelled";
   total_hadir?: number;
   total_mahasiswa?: number;
 }
@@ -47,6 +48,7 @@ const LecturerDashboard = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedKelas, setSelectedKelas] = useState("");
   const [selectedSesi, setSelectedSesi] = useState<number | null>(null);
@@ -58,7 +60,9 @@ const LecturerDashboard = () => {
   const { data: kelasList } = useQuery({
     queryKey: ["kelas-dosen", user?.id],
     queryFn: async () => {
-      const response = await apiGet<Kelas[]>(`/kelas?dosen_id=${user?.id}`);
+      console.log('Fetching kelas for dosen, user:', user);
+      const response = await apiGet<Kelas[]>("/kelas");
+      console.log('Kelas response:', response);
       return response.data;
     }
   });
@@ -102,11 +106,26 @@ const LecturerDashboard = () => {
 
   // Mutation untuk create sesi
   const createSesiMutation = useMutation({
-    mutationFn: (data: any) => apiPost("/sesi", data),
-    onSuccess: () => {
+    mutationFn: (data: any) => {
+      console.log('Mutation sending data:', data);
+      return apiPost("/sesi", data);
+    },
+    onSuccess: (response) => {
+      console.log('Sesi created successfully:', response);
       queryClient.invalidateQueries({ queryKey: ["sesi-absensi"] });
-      toast({ title: "Berhasil", description: "Sesi absensi berhasil dibuat" });
+      toast({ title: "Berhasil", description: "Sesi absensi berhasil dibuat", duration: 3000 });
       handleCloseCreateDialog();
+    },
+    onError: (error: any) => {
+      console.error('Error creating sesi:', error);
+      console.error('Error response:', error.response);
+      console.error('Error data:', error.response?.data);
+      toast({ 
+        title: "Error", 
+        description: error.response?.data?.message || error.response?.data?.details || error.message || "Gagal membuat sesi absensi",
+        variant: "destructive",
+        duration: 7000
+      });
     }
   });
 
@@ -120,19 +139,39 @@ const LecturerDashboard = () => {
     }
   });
 
+  // Mutation untuk mengubah status sesi (activate/deactivate)
+  const updateSesiStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) => 
+      apiPut(`/sesi/${id}/status`, { status }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["sesi-absensi"] });
+      const statusText = variables.status === 'active' ? 'diaktifkan' : 
+                        variables.status === 'completed' ? 'diselesaikan' : 
+                        variables.status === 'scheduled' ? 'dijadwalkan' : 'dibatalkan';
+      toast({ title: "Berhasil", description: `Sesi berhasil ${statusText}` });
+    }
+  });
+
   const handleCreateSesi = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Creating sesi with:', { selectedKelas, tanggal, waktuMulai, waktuSelesai });
+    
     if (!selectedKelas || !tanggal || !waktuMulai || !waktuSelesai) {
+      console.error('Validation failed - missing fields');
       toast({ title: "Error", description: "Lengkapi semua field", variant: "destructive" });
       return;
     }
-    createSesiMutation.mutate({
+    
+    const payload = {
       kelas_id: parseInt(selectedKelas),
       tanggal,
       jam_mulai: waktuMulai,
       jam_selesai: waktuSelesai,
       status: "scheduled"
-    });
+    };
+    
+    console.log('Sending payload:', payload);
+    createSesiMutation.mutate(payload);
   };
 
   const handleCloseCreateDialog = () => {
@@ -155,11 +194,17 @@ const LecturerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard Dosen</h1>
-            <p className="text-sm text-gray-600 mt-1">{user?.username}</p>
+      <header className="glass-strong shadow-lg border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+              <span className="text-xl font-bold text-white">UI</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Dosen</h1>
+              <p className="text-xs text-gray-600 font-medium">Teknik Industri - Universitas Diponegoro</p>
+              <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
+            </div>
           </div>
           <Button onClick={logout} variant="outline">
             <LogOut className="mr-2 h-4 w-4" /> Logout
@@ -226,7 +271,7 @@ const LecturerDashboard = () => {
                     {kelasList?.map((kelas) => (
                       <TableRow key={kelas.id}>
                         <TableCell className="font-medium">{kelas.nama}</TableCell>
-                        <TableCell>{kelas.matakuliah_nama}</TableCell>
+                        <TableCell>{kelas.mata_kuliah_nama}</TableCell>
                         <TableCell>{kelas.total_mahasiswa || 0}</TableCell>
                       </TableRow>
                     ))}
@@ -240,12 +285,30 @@ const LecturerDashboard = () => {
           <TabsContent value="sesi" className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Kelola Sesi Absensi</h3>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Buat Sesi Baru
-                  </Button>
-                </DialogTrigger>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    const activeSesi = sesiList?.find(s => s.status === 'active');
+                    if (activeSesi) {
+                      navigate(`/dashboard/camera-absensi?sesi_id=${activeSesi.id}`);
+                    } else {
+                      toast({ 
+                        title: "Tidak ada sesi aktif", 
+                        description: "Aktifkan sesi terlebih dahulu untuk menggunakan kamera",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                >
+                  <Camera className="mr-2 h-4 w-4" /> Buka Kamera Absensi
+                </Button>
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="mr-2 h-4 w-4" /> Buat Sesi Baru
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Buat Sesi Absensi</DialogTitle>
@@ -261,7 +324,7 @@ const LecturerDashboard = () => {
                           <SelectContent>
                             {kelasList?.map((kelas) => (
                               <SelectItem key={kelas.id} value={kelas.id.toString()}>
-                                {kelas.nama} - {kelas.matakuliah_nama}
+                                {kelas.nama} - {kelas.mata_kuliah_nama}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -287,6 +350,7 @@ const LecturerDashboard = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
 
             <Card>
@@ -310,19 +374,44 @@ const LecturerDashboard = () => {
                     {sesiList?.map((sesi) => (
                       <TableRow key={sesi.id}>
                         <TableCell>{sesi.kelas_nama}</TableCell>
-                        <TableCell>{sesi.matakuliah_nama}</TableCell>
+                        <TableCell>{sesi.mata_kuliah_nama}</TableCell>
                         <TableCell>{new Date(sesi.tanggal).toLocaleDateString('id-ID')}</TableCell>
                         <TableCell>{sesi.waktu_mulai} - {sesi.waktu_selesai}</TableCell>
                         <TableCell>
-                          <Badge variant={sesi.status === 'active' ? 'default' : 'secondary'}>
+                          <Badge variant={
+                            sesi.status === 'active' ? 'default' : 
+                            sesi.status === 'completed' ? 'secondary' : 
+                            sesi.status === 'cancelled' ? 'destructive' : 
+                            'outline'
+                          }>
                             {sesi.status}
                           </Badge>
                         </TableCell>
                         <TableCell>{sesi.total_hadir || 0} / {sesi.total_mahasiswa || 0}</TableCell>
                         <TableCell>
-                          <Button size="sm" onClick={() => setSelectedSesi(sesi.id)}>
-                            Kelola
-                          </Button>
+                          <div className="flex gap-2">
+                            {sesi.status === 'scheduled' && (
+                              <Button 
+                                size="sm" 
+                                variant="default"
+                                onClick={() => updateSesiStatusMutation.mutate({ id: sesi.id, status: 'active' })}
+                              >
+                                Aktifkan
+                              </Button>
+                            )}
+                            {sesi.status === 'active' && (
+                              <Button 
+                                size="sm" 
+                                variant="secondary"
+                                onClick={() => updateSesiStatusMutation.mutate({ id: sesi.id, status: 'completed' })}
+                              >
+                                Selesaikan
+                              </Button>
+                            )}
+                            <Button size="sm" variant="outline" onClick={() => setSelectedSesi(sesi.id)}>
+                              Kelola
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

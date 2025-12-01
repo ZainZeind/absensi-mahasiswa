@@ -32,7 +32,7 @@ const Landing = () => {
             
             {/* Subheading */}
             <p className="text-lg md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-              Platform absensi digital yang modern, praktis, dan real-time untuk mahasiswa dan dosen
+              Tutup Celah Titip Absen — Semua Tercatat Secara Real-Time.
             </p>
             
             {/* CTA Buttons */}

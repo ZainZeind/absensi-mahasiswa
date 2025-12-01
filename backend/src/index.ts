@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import deviceApiRouter from './routes/deviceApi';
 
 dotenv.config();
 
@@ -67,6 +68,9 @@ const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunctio
 };
 
 // ==================== ROUTES ====================
+
+// Device API Routes (for face recognition devices)
+app.use('/api/device', deviceApiRouter);
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -384,17 +388,36 @@ app.delete('/api/matakuliah/:id', authMiddleware, async (req, res) => {
 });
 
 // ==================== KELAS ROUTES ====================
-app.get('/api/kelas', authMiddleware, async (req, res) => {
+app.get('/api/kelas', authMiddleware, async (req: any, res: Response) => {
   try {
-    const [rows] = await pool.query(`
+    const { dosen_id } = req.query;
+    console.log('GET /api/kelas - User role:', req.user?.role, 'User ID:', req.user?.id);
+    
+    let query = `
       SELECT k.*, mk.nama as mata_kuliah_nama, mk.kode as mata_kuliah_kode, d.nama as dosen_nama
       FROM kelas k
       LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
       LEFT JOIN dosen d ON k.dosen_id = d.id
-      ORDER BY k.created_at DESC
-    `);
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    
+    // Filter by dosen_id if query param provided (for dosen view)
+    if (dosen_id) {
+      query += ' AND k.dosen_id = ?';
+      params.push(dosen_id);
+      console.log('Filtering for dosen_id:', dosen_id);
+    } else {
+      console.log('No filter applied - returning all kelas');
+    }
+    
+    query += ' ORDER BY k.created_at DESC';
+    
+    const [rows]: any = await pool.query(query, params);
+    console.log('Found', rows.length, 'kelas records');
     res.json({ success: true, data: rows });
   } catch (error: any) {
+    console.error('Error fetching kelas:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -421,31 +444,33 @@ app.get('/api/kelas/:id', authMiddleware, async (req, res) => {
 
 app.post('/api/kelas', authMiddleware, async (req, res) => {
   try {
-    const { kode, nama, matkul_id, dosen_id, semester, tahun_ajaran, ruangan, jadwal } = req.body;
+    const { nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran } = req.body;
     
-    if (!kode || !nama || !matkul_id || !dosen_id) {
-      return res.status(400).json({ success: false, message: 'Kode, nama, mata kuliah, dan dosen harus diisi' });
+    console.log('Creating kelas with data:', { nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran });
+    
+    if (!nama || !matkul_id || !dosen_id || !hari || !jam_mulai || !jam_selesai || !ruang || !kapasitas || !semester || !tahun_ajaran) {
+      return res.status(400).json({ success: false, message: 'Semua field harus diisi' });
     }
 
     const [result]: any = await pool.query(
-      'INSERT INTO kelas (kode, nama, matkul_id, dosen_id, semester, tahun_ajaran, ruangan, jadwal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [kode, nama, matkul_id, dosen_id, semester, tahun_ajaran, ruangan, jadwal]
+      'INSERT INTO kelas (nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran]
     );
+    
+    console.log('Kelas created successfully, ID:', result.insertId);
     res.json({ success: true, message: 'Kelas berhasil ditambahkan', data: { id: result.insertId } });
   } catch (error: any) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({ success: false, message: 'Kode kelas sudah terdaftar' });
-    }
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error creating kelas:', error);
+    res.status(500).json({ success: false, message: error.message, details: error.sqlMessage });
   }
 });
 
 app.put('/api/kelas/:id', authMiddleware, async (req, res) => {
   try {
-    const { kode, nama, matkul_id, dosen_id, semester, tahun_ajaran, ruangan, jadwal } = req.body;
+    const { nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran } = req.body;
     const [result]: any = await pool.query(
-      'UPDATE kelas SET kode = ?, nama = ?, matkul_id = ?, dosen_id = ?, semester = ?, tahun_ajaran = ?, ruangan = ?, jadwal = ? WHERE id = ?',
-      [kode, nama, matkul_id, dosen_id, semester, tahun_ajaran, ruangan, jadwal, req.params.id]
+      'UPDATE kelas SET nama = ?, matkul_id = ?, dosen_id = ?, hari = ?, jam_mulai = ?, jam_selesai = ?, ruang = ?, kapasitas = ?, semester = ?, tahun_ajaran = ? WHERE id = ?',
+      [nama, matkul_id, dosen_id, hari, jam_mulai, jam_selesai, ruang, kapasitas, semester, tahun_ajaran, req.params.id]
     );
     
     if (result.affectedRows === 0) {
@@ -590,21 +615,69 @@ app.get('/api/sesi/:id', authMiddleware, async (req, res) => {
   }
 });
 
-app.post('/api/sesi', authMiddleware, async (req, res) => {
+app.post('/api/sesi', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { kelas_id, tanggal, jam_mulai, jam_selesai, materi, status } = req.body;
     
+    console.log('POST /api/sesi - Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user);
+    
+    // Test: Cek struktur tabel dan database
+    try {
+      const [dbInfo]: any = await pool.query("SELECT DATABASE() as db");
+      console.log('Connected to database:', dbInfo[0].db);
+      
+      const [columns]: any = await pool.query("SHOW COLUMNS FROM sesi_absensi");
+      console.log('Table columns:', columns.map((c: any) => c.Field).join(', '));
+      
+      const [tableInfo]: any = await pool.query("SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'sesi_absensi'");
+      console.log('Table info:', tableInfo);
+    } catch (e: any) {
+      console.error('Error checking table structure:', e.message);
+    }
+    
     if (!kelas_id || !tanggal || !jam_mulai) {
+      console.log('Validation failed: missing required fields');
       return res.status(400).json({ success: false, message: 'Kelas, tanggal, dan jam mulai harus diisi' });
     }
 
+    // Validate kelas exists
+    console.log('Checking if kelas exists:', kelas_id);
+    const [kelasCheck]: any = await pool.query('SELECT id FROM kelas WHERE id = ?', [kelas_id]);
+    console.log('Kelas check result:', kelasCheck);
+    
+    if (kelasCheck.length === 0) {
+      console.log('Kelas not found');
+      return res.status(404).json({ success: false, message: 'Kelas tidak ditemukan. Pastikan kelas sudah dibuat terlebih dahulu.' });
+    }
+
+    // Set default jam_selesai if not provided (2 hours after jam_mulai)
+    let finalJamSelesai = jam_selesai;
+    if (!finalJamSelesai && jam_mulai) {
+      const [hours, minutes] = jam_mulai.split(':').map(Number);
+      const endHours = (hours + 2) % 24;
+      finalJamSelesai = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      console.log('Auto-generated jam_selesai:', finalJamSelesai);
+    }
+
+    console.log('Inserting sesi with:', { kelas_id, tanggal, jam_mulai, jam_selesai: finalJamSelesai, materi, status: status || 'scheduled' });
+    
     const [result]: any = await pool.query(
-      'INSERT INTO sesi_absensi (kelas_id, tanggal, jam_mulai, jam_selesai, materi, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [kelas_id, tanggal, jam_mulai, jam_selesai, materi, status || 'aktif']
+      'INSERT INTO `sesi_absensi` (`kelas_id`, `tanggal`, `jam_mulai`, `jam_selesai`, `materi`, `status`) VALUES (?, ?, ?, ?, ?, ?)',
+      [kelas_id, tanggal, jam_mulai, finalJamSelesai || null, materi || null, status || 'scheduled']
     );
+    
+    console.log('✅ Sesi created successfully, ID:', result.insertId);
     res.json({ success: true, message: 'Sesi absensi berhasil dibuat', data: { id: result.insertId } });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('❌ Error creating sesi:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message, 
+      details: error.sqlMessage || error.toString(),
+      code: error.code 
+    });
   }
 });
 
@@ -633,6 +706,37 @@ app.delete('/api/sesi/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Sesi not found' });
     }
     res.json({ success: true, message: 'Sesi berhasil dihapus' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Activate/Deactivate session status
+app.put('/api/sesi/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    if (!['scheduled', 'active', 'completed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Status harus salah satu: scheduled, active, completed, cancelled' 
+      });
+    }
+
+    const [result]: any = await pool.query(
+      'UPDATE sesi_absensi SET status = ? WHERE id = ?',
+      [status, req.params.id]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Sesi not found' });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Sesi berhasil diubah menjadi ${status}`,
+      data: { id: req.params.id, status }
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -672,27 +776,45 @@ app.get('/api/absensi', authMiddleware, async (req, res) => {
 
 app.post('/api/absensi', authMiddleware, async (req, res) => {
   try {
-    const { sesi_id, mahasiswa_id, status, device_id, lokasi, catatan } = req.body;
+    const { sesi_id, mahasiswa_id, nim, status, device_id, lokasi, catatan, metode } = req.body;
     
-    if (!sesi_id || !mahasiswa_id || !status) {
+    let finalMahasiswaId = mahasiswa_id;
+    
+    // If NIM is provided instead of mahasiswa_id, lookup the ID
+    if (!mahasiswa_id && nim) {
+      const [mahasiswaResult]: any = await pool.query(
+        'SELECT id FROM mahasiswa WHERE nim = ?',
+        [nim]
+      );
+      
+      if (mahasiswaResult.length === 0) {
+        return res.status(404).json({ success: false, message: 'Mahasiswa dengan NIM tersebut tidak ditemukan' });
+      }
+      
+      finalMahasiswaId = mahasiswaResult[0].id;
+    }
+    
+    if (!sesi_id || !finalMahasiswaId || !status) {
       return res.status(400).json({ success: false, message: 'Sesi, mahasiswa, dan status harus diisi' });
     }
 
     // Check if already submitted
     const [existing]: any = await pool.query(
       'SELECT id FROM absensi WHERE sesi_id = ? AND mahasiswa_id = ?',
-      [sesi_id, mahasiswa_id]
+      [sesi_id, finalMahasiswaId]
     );
     
     if (existing.length > 0) {
       return res.status(400).json({ success: false, message: 'Absensi sudah tercatat' });
     }
 
+    const absensiMetode = metode || 'webcam'; // Default to webcam if not specified
+
     const [result]: any = await pool.query(
-      'INSERT INTO absensi (sesi_id, mahasiswa_id, status, waktu_absen, device_id, lokasi, catatan) VALUES (?, ?, ?, NOW(), ?, ?, ?)',
-      [sesi_id, mahasiswa_id, status, device_id, lokasi, catatan]
+      'INSERT INTO absensi (sesi_id, mahasiswa_id, status, metode, waktu_absen, device_id, lokasi, catatan) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)',
+      [sesi_id, finalMahasiswaId, status, absensiMetode, device_id, lokasi, catatan]
     );
-    res.json({ success: true, message: 'Absensi berhasil tercatat', data: { id: result.insertId } });
+    res.json({ success: true, message: 'Absensi berhasil tercatat', data: { id: result.insertId, metode: absensiMetode } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -910,6 +1032,181 @@ app.get('/api/stats/mahasiswa/:id', authMiddleware, async (req, res) => {
         persentase_kehadiran: persentase
       }
     });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ==================== FACE RECOGNITION DEVICE API ====================
+// Device Authentication Middleware
+const deviceAuthMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const deviceToken = req.headers['x-device-token'];
+    
+    if (!deviceToken) {
+      return res.status(401).json({ success: false, message: 'Device token required' });
+    }
+
+    const [devices]: any = await pool.query(
+      'SELECT * FROM devices WHERE token = ? AND is_active = TRUE',
+      [deviceToken]
+    );
+
+    if (devices.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid or inactive device' });
+    }
+
+    req.user = devices[0]; // Store device info in request
+    next();
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get active session for device location
+app.get('/api/device/active-session', deviceAuthMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const device = req.user;
+    
+    const [sessions]: any = await pool.query(`
+      SELECT 
+        s.id,
+        s.kelas_id,
+        s.tanggal,
+        s.jam_mulai as waktu_mulai,
+        s.jam_selesai as waktu_selesai,
+        s.status,
+        k.nama as kelas_nama,
+        k.ruangan,
+        mk.nama as matakuliah_nama,
+        d.nama as dosen_nama
+      FROM sesi_absensi s
+      JOIN kelas k ON s.kelas_id = k.id
+      JOIN mata_kuliah mk ON k.matakuliah_id = mk.id
+      JOIN dosen d ON k.dosen_id = d.id
+      WHERE s.status = 'active'
+        AND DATE(s.tanggal) = CURDATE()
+      ORDER BY s.jam_mulai DESC
+      LIMIT 1
+    `);
+
+    if (sessions.length === 0) {
+      return res.json({ success: true, active: false, message: 'No active session' });
+    }
+
+    const [students]: any = await pool.query(`
+      SELECT m.id, m.nim, m.nama, m.foto_wajah
+      FROM enrollment e
+      JOIN mahasiswa m ON e.mahasiswa_id = m.id
+      WHERE e.kelas_id = ?
+    `, [sessions[0].kelas_id]);
+
+    res.json({ success: true, active: true, data: { session: sessions[0], enrolled_students: students } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Submit attendance from device
+app.post('/api/device/submit-attendance', deviceAuthMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const device = req.user;
+    const { sesi_id, nim, confidence, foto_wajah_path } = req.body;
+
+    if (!sesi_id || !nim) {
+      return res.status(400).json({ success: false, message: 'sesi_id and nim are required' });
+    }
+
+    const [sessions]: any = await pool.query(
+      'SELECT * FROM sesi_absensi WHERE id = ? AND status = ?',
+      [sesi_id, 'active']
+    );
+
+    if (sessions.length === 0) {
+      return res.status(400).json({ success: false, message: 'Session not active' });
+    }
+
+    const [mahasiswa]: any = await pool.query('SELECT * FROM mahasiswa WHERE nim = ?', [nim]);
+    if (mahasiswa.length === 0) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    const mahasiswaId = mahasiswa[0].id;
+
+    const [existing]: any = await pool.query(
+      'SELECT * FROM absensi WHERE sesi_absensi_id = ? AND mahasiswa_id = ?',
+      [sesi_id, mahasiswaId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, message: 'Already attended' });
+    }
+
+    const [result]: any = await pool.query(
+      `INSERT INTO absensi (sesi_absensi_id, mahasiswa_id, status, metode, confidence, foto_wajah, device_id) 
+       VALUES (?, ?, 'hadir', 'face_recognition_device', ?, ?, ?)`,
+      [sesi_id, mahasiswaId, confidence || 0.95, foto_wajah_path, device.id]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Attendance recorded',
+      data: { id: result.insertId, nim, nama: mahasiswa[0].nama, waktu_absen: new Date() }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get real-time attendance stats
+app.get('/api/device/stats/:sesi_id', deviceAuthMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { sesi_id } = req.params;
+
+    const [session]: any = await pool.query('SELECT kelas_id FROM sesi_absensi WHERE id = ?', [sesi_id]);
+    if (session.length === 0) {
+      return res.status(404).json({ success: false, message: 'Session not found' });
+    }
+
+    const [totalEnrolled]: any = await pool.query(
+      'SELECT COUNT(*) as total FROM enrollment WHERE kelas_id = ?',
+      [session[0].kelas_id]
+    );
+
+    const [totalAttended]: any = await pool.query(
+      'SELECT COUNT(*) as total FROM absensi WHERE sesi_absensi_id = ?',
+      [sesi_id]
+    );
+
+    const [recentAttendances]: any = await pool.query(`
+      SELECT m.nim, m.nama, a.waktu_absen, a.confidence, a.metode
+      FROM absensi a
+      JOIN mahasiswa m ON a.mahasiswa_id = m.id
+      WHERE a.sesi_absensi_id = ?
+      ORDER BY a.waktu_absen DESC
+      LIMIT 10
+    `, [sesi_id]);
+
+    res.json({ 
+      success: true, 
+      data: {
+        total_enrolled: totalEnrolled[0].total,
+        total_attended: totalAttended[0].total,
+        percentage: Math.round((totalAttended[0].total / totalEnrolled[0].total) * 100) || 0,
+        recent_attendances: recentAttendances
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Device heartbeat
+app.post('/api/device/heartbeat', deviceAuthMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const device = req.user;
+    await pool.query('UPDATE devices SET last_seen = NOW() WHERE id = ?', [device.id]);
+    res.json({ success: true, message: 'Heartbeat received', server_time: new Date() });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
