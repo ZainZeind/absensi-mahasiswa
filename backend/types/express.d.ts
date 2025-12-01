@@ -28,7 +28,11 @@ declare module 'express-rate-limit' {
 
 declare module 'express-validator' {
   function body(field: string): any;
-  function validationResult(req: any): any;
+  function validationResult(req: any): {
+    isEmpty(): boolean;
+    array(): any[];
+    formatWith(validator: string): any;
+  };
 }
 
 declare module 'dotenv' {
@@ -36,8 +40,17 @@ declare module 'dotenv' {
 }
 
 declare module 'jsonwebtoken' {
-  function sign(payload: any, secret: string, options?: any): string;
-  function verify(token: string, secret: string): any;
+  interface JwtPayload {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    profileId?: number;
+    profileType?: string;
+  }
+
+  function sign(payload: JwtPayload, secret: string, options?: any): string;
+  function verify(token: string, secret: string): JwtPayload;
 }
 
 declare module 'bcryptjs' {
