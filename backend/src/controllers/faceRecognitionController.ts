@@ -9,6 +9,7 @@ import path from 'path';
 
 interface AuthenticatedRequest extends Request {
   user?: any;
+  upload?: any;
 }
 
 // Validation rules
