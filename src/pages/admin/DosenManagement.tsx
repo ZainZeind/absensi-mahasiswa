@@ -166,10 +166,14 @@ const DosenManagement = () => {
                   <Input
                     id="email"
                     type="email"
+                    placeholder="contoh: dosen01@lecturer"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
+                    pattern=".*@lecturer$"
+                    title="Email harus berakhiran @lecturer"
                   />
+                  <p className="text-xs text-muted-foreground">Email harus berakhiran @lecturer</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="no_telepon">No. Telepon</Label>

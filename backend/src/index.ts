@@ -176,6 +176,10 @@ app.post('/api/mahasiswa', authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: 'NIM, nama, dan email harus diisi' });
     }
 
+    if (!email.endsWith('@students')) {
+      return res.status(400).json({ success: false, message: 'Email mahasiswa harus berakhiran @students' });
+    }
+
     const [result]: any = await pool.query(
       'INSERT INTO mahasiswa (nim, nama, email, jurusan, semester) VALUES (?, ?, ?, ?, ?)',
       [nim, nama, email, jurusan, semester || 1]
@@ -192,6 +196,11 @@ app.post('/api/mahasiswa', authMiddleware, async (req, res) => {
 app.put('/api/mahasiswa/:id', authMiddleware, async (req, res) => {
   try {
     const { nim, nama, email, jurusan, semester } = req.body;
+    
+    if (email && !email.endsWith('@students')) {
+      return res.status(400).json({ success: false, message: 'Email mahasiswa harus berakhiran @students' });
+    }
+    
     const [result]: any = await pool.query(
       'UPDATE mahasiswa SET nim = ?, nama = ?, email = ?, jurusan = ?, semester = ? WHERE id = ?',
       [nim, nama, email, jurusan, semester, req.params.id]
@@ -249,6 +258,10 @@ app.post('/api/dosen', authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: 'NIDN, nama, dan email harus diisi' });
     }
 
+    if (!email.endsWith('@lecturer')) {
+      return res.status(400).json({ success: false, message: 'Email dosen harus berakhiran @lecturer' });
+    }
+
     const [result]: any = await pool.query(
       'INSERT INTO dosen (nidn, nama, email, nomor_hp, jurusan) VALUES (?, ?, ?, ?, ?)',
       [nidn, nama, email, nomor_hp, jurusan]
@@ -265,6 +278,11 @@ app.post('/api/dosen', authMiddleware, async (req, res) => {
 app.put('/api/dosen/:id', authMiddleware, async (req, res) => {
   try {
     const { nidn, nama, email, nomor_hp, jurusan } = req.body;
+    
+    if (email && !email.endsWith('@lecturer')) {
+      return res.status(400).json({ success: false, message: 'Email dosen harus berakhiran @lecturer' });
+    }
+    
     const [result]: any = await pool.query(
       'UPDATE dosen SET nidn = ?, nama = ?, email = ?, nomor_hp = ?, jurusan = ? WHERE id = ?',
       [nidn, nama, email, nomor_hp, jurusan, req.params.id]

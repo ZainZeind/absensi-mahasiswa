@@ -169,10 +169,14 @@ const MahasiswaManagement = () => {
                   <Input
                     id="email"
                     type="email"
+                    placeholder="contoh: mhs123@students"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
+                    pattern=".*@students$"
+                    title="Email harus berakhiran @students"
                   />
+                  <p className="text-xs text-muted-foreground">Email harus berakhiran @students</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="jurusan">Jurusan</Label>

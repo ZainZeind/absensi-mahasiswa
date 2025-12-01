@@ -1,244 +1,238 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
-import { Shield, Camera, Clock, TrendingUp, Users, Zap, GraduationCap, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { GraduationCap, Users, Calendar, CheckCircle, Smartphone, Shield, ArrowRight, Sparkles } from "lucide-react";
 
 const Landing = () => {
-  const navigate = useNavigate();
-
-  const features = [
-    {
-      icon: Camera,
-      title: "Face Recognition",
-      description: "Sistem pengenalan wajah AI untuk verifikasi identitas yang akurat"
-    },
-    {
-      icon: Shield,
-      title: "Anti Proxy",
-      description: "Eliminasi kecurangan absensi dengan verifikasi biometrik real-time"
-    },
-    {
-      icon: Clock,
-      title: "Real-Time Tracking",
-      description: "Monitor sesi absensi secara langsung dengan notifikasi instan"
-    },
-    {
-      icon: TrendingUp,
-      title: "Dashboard Analitik",
-      description: "Wawasan komprehensif tentang pola dan tren kehadiran"
-    },
-    {
-      icon: Users,
-      title: "Multi-Role Access",
-      description: "Interface khusus untuk admin, dosen, dan mahasiswa"
-    },
-    {
-      icon: Zap,
-      title: "Proses Instan",
-      description: "Pencocokan wajah super cepat dengan waktu respons sub-detik"
-    }
-  ];
-
-  const benefits = [
-    "Keamanan dan akurasi tinggi",
-    "Mudah digunakan",
-    "Laporan lengkap dan detail",
-    "Hemat waktu dan efisien"
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50">
-      {/* Header/Navbar */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">Sistem Absensi</span>
-            </div>
-            <Button 
-              onClick={() => navigate("/login")}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Login
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-20 pb-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <div className="inline-block px-4 py-2 bg-blue-100 rounded-full">
-              <span className="text-sm font-medium text-blue-600">Sistem Absensi Modern</span>
+      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
+          <div className="glass-strong rounded-3xl p-8 md:p-12 shadow-2xl hover-lift">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-6">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-semibold text-gray-800">Sistem Absensi Modern</span>
             </div>
             
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
-              Sistem Absensi
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Face Recognition
+            {/* Main Heading */}
+            <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                Absensi Kampus
               </span>
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-lg">
-              Eliminasi kecurangan absensi dengan teknologi pengenalan wajah terkini. 
-              Sistem absensi yang aman, akurat, dan real-time untuk kampus modern.
+            {/* Subheading */}
+            <p className="text-lg md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
+              Platform absensi digital yang modern, praktis, dan real-time untuk mahasiswa dan dosen
             </p>
             
-            <div className="flex flex-wrap gap-4">
-              <Button 
-                size="lg" 
-                onClick={() => navigate("/login")}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 h-14"
-              >
-                Mulai Sekarang
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="border-2 text-lg px-8 h-14"
-              >
-                Pelajari Lebih Lanjut
-              </Button>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/login" className="w-full sm:w-auto">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto text-lg px-8 py-6 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <GraduationCap className="mr-2 h-5 w-5" />
+                  Masuk Sekarang
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
 
-            <div className="flex items-center gap-8 pt-4">
-              <div>
-                <div className="text-3xl font-bold text-blue-600">99.9%</div>
-                <div className="text-sm text-gray-600">Akurasi</div>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 md:gap-8 mt-12 pt-8 border-t border-white/30">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">99.9%</div>
+                <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Akurasi</div>
               </div>
-              <div className="h-12 w-px bg-gray-300" />
-              <div>
-                <div className="text-3xl font-bold text-blue-600">&lt;1s</div>
-                <div className="text-sm text-gray-600">Waktu Respon</div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Real-Time</div>
+                <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Tracking</div>
               </div>
-              <div className="h-12 w-px bg-gray-300" />
-              <div>
-                <div className="text-3xl font-bold text-blue-600">0%</div>
-                <div className="text-sm text-gray-600">Kecurangan</div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent">24/7</div>
+                <div className="text-xs md:text-sm text-gray-600 mt-1 font-medium">Support</div>
               </div>
             </div>
-          </div>
-
-          <div className="relative">
-            <div className="aspect-square rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 shadow-2xl flex items-center justify-center">
-              <Camera className="w-32 h-32 text-white" />
-            </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-200 rounded-full opacity-50 blur-2xl" />
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-indigo-200 rounded-full opacity-50 blur-2xl" />
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20 px-4">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">Fitur Unggulan</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Teknologi terdepan untuk sistem absensi yang lebih baik
+            <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-semibold text-gray-800">Fitur Unggulan</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Kenapa Memilih Kami?
+            </h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              Solusi lengkap untuk kebutuhan absensi kampus modern
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card 
-                key={index} 
-                className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2"
-              >
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Feature 1 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-7 h-7 md:w-8 md:h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">Multi-Role</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Akses terpisah untuk Admin, Dosen, dan Mahasiswa dengan fitur sesuai kebutuhan masing-masing
+                </p>
+              </CardContent>
+            </Card>
 
-      {/* Benefits Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold mb-6 text-gray-900">
-                Mengapa Memilih Sistem Kami?
-              </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Solusi absensi modern dengan teknologi terkini untuk meningkatkan 
-                efisiensi dan keamanan proses absensi di kampus Anda.
-              </p>
-              <div className="space-y-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                    <span className="text-lg text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Feature 2 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">Real-Time</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Catat dan pantau kehadiran secara langsung dengan sistem yang responsif dan akurat
+                </p>
+              </CardContent>
+            </Card>
 
-            <Card className="p-8 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
-              <h3 className="text-2xl font-bold mb-4">Siap untuk Memulai?</h3>
-              <p className="mb-6 text-blue-50">
-                Bergabunglah dengan ribuan institusi yang sudah menggunakan sistem kami 
-                untuk mengelola absensi dengan lebih efisien.
-              </p>
-              <Button 
-                size="lg"
-                onClick={() => navigate("/auth")}
-                className="w-full bg-white text-blue-600 hover:bg-gray-100"
-              >
-                Mulai Sekarang
-              </Button>
+            {/* Feature 3 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">Otomatis</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Rekap otomatis, notifikasi real-time, dan laporan lengkap untuk kemudahan monitoring
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 4 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Smartphone className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">Responsive</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Akses dari perangkat apapun - desktop, tablet, atau smartphone dengan tampilan optimal
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 5 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">Aman</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Data terenkripsi dengan sistem keamanan berlapis untuk melindungi privasi pengguna
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Feature 6 */}
+            <Card className="glass-card border-0 hover-lift cursor-pointer group">
+              <CardContent className="p-6 md:p-8">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <GraduationCap className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800">User Friendly</h3>
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  Interface intuitif dan mudah digunakan bahkan untuk pengguna pertama kali
+                </p>
+              </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="p-2 bg-blue-600 rounded-lg">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                <span className="text-lg font-bold">Sistem Absensi</span>
-              </div>
-              <p className="text-gray-400">
-                Sistem absensi modern dengan teknologi face recognition untuk kampus Anda.
-              </p>
+      {/* CTA Section */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="glass-strong rounded-3xl p-8 md:p-12 shadow-2xl">
+            <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-6">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-semibold text-gray-800">Mulai Sekarang</span>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Fitur</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Face Recognition</li>
-                <li>Dashboard Analitik</li>
-                <li>Laporan Real-time</li>
-                <li>Multi-role Access</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Kontak</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Email: info@absensi.com</li>
-                <li>Phone: +62 xxx xxxx xxxx</li>
-                <li>Support: support@absensi.com</li>
-              </ul>
-            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Siap Memulai?
+            </h2>
+            <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+              Bergabung sekarang dan rasakan kemudahan sistem absensi modern
+            </p>
+            <Link to="/login">
+              <Button 
+                size="lg" 
+                className="text-lg px-10 py-6 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <GraduationCap className="mr-2 h-5 w-5" />
+                Mulai Sekarang
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Sistem Absensi. All rights reserved.</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative py-8 px-4 border-t border-white/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-6 h-6 text-purple-600" />
+              <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Absensi Kampus
+              </span>
+            </div>
+            <p className="text-gray-600 text-sm md:text-base text-center md:text-left">
+              © 2025 Absensi Kampus. Semua Hak Dilindungi.
+            </p>
           </div>
         </div>
       </footer>
+
+      <style>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </div>
   );
 };
