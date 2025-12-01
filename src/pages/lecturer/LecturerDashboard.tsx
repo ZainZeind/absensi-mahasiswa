@@ -206,68 +206,89 @@ const LecturerDashboard = () => {
     sesiHariIni: sesiList?.filter(s => s.tanggal === new Date().toISOString().split('T')[0]).length || 0
   };
 
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="glass-strong shadow-lg border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
-              <span className="text-xl font-bold text-white">UI</span>
+    <div className="min-h-screen bg-background">
+      <header className="bg-card border-b border-border sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
+                  <span className="text-lg font-semibold text-white">{getInitials(user?.username || 'D')}</span>
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-foreground">Dashboard Dosen</h1>
+                  <p className="text-xs text-muted-foreground">{user?.username}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Dosen</h1>
-              <p className="text-xs text-gray-600 font-medium">Teknik Industri - Universitas Diponegoro</p>
-              <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
-            </div>
+            <Button onClick={logout} variant="ghost" size="sm" className="hover:bg-blue-50">
+              <LogOut className="mr-2 h-4 w-4" /> Keluar
+            </Button>
           </div>
-          <Button onClick={logout} variant="outline">
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Kelas Saya</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalKelas}</div>
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Kelas Saya</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.totalKelas}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Mahasiswa</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalMahasiswa}</div>
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Total Mahasiswa</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.totalMahasiswa}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-200 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Sesi Hari Ini</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.sesiHariIni}</div>
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Sesi Hari Ini</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.sesiHariIni}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-300 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-blue-800" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="kelas" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="kelas">Kelas Saya</TabsTrigger>
-            <TabsTrigger value="sesi">Sesi Absensi</TabsTrigger>
+        <Tabs defaultValue="kelas" className="space-y-6">
+          <TabsList className="bg-card border border-border p-1">
+            <TabsTrigger value="kelas" className="data-[state=active]:bg-primary data-[state=active]:text-white">Kelas Saya</TabsTrigger>
+            <TabsTrigger value="sesi" className="data-[state=active]:bg-primary data-[state=active]:text-white">Sesi Absensi</TabsTrigger>
           </TabsList>
 
           {/* Tab Kelas */}
-          <TabsContent value="kelas" className="space-y-4">
-            <Card>
-              <CardHeader>
+          <TabsContent value="kelas" className="space-y-6">
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
                 <CardTitle>Daftar Kelas</CardTitle>
                 <CardDescription>Kelas yang Anda ajar</CardDescription>
               </CardHeader>
@@ -477,7 +498,15 @@ const LecturerDashboard = () => {
                             <TableCell>{mhs.mahasiswa_nama}</TableCell>
                             <TableCell>
                               {absensi ? (
-                                <Badge variant={absensi.status === 'hadir' ? 'default' : 'destructive'}>
+                                <Badge 
+                                  className={
+                                    absensi.status === 'hadir' 
+                                      ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                                      : absensi.status === 'izin' || absensi.status === 'sakit'
+                                      ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                      : 'bg-red-500 hover:bg-red-600 text-white'
+                                  }
+                                >
                                   {absensi.status}
                                 </Badge>
                               ) : (

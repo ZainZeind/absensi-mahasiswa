@@ -8,52 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Light Theme with Glassmorphism */
-    --background: 240 20% 98%;
+    /* Cream & Blue Theme */
+    --background: 40 40% 96%;
     --foreground: 220 20% 20%;
 
-    --card: 0 0% 100%;
+    --card: 40 30% 98%;
     --card-foreground: 220 20% 20%;
 
-    --popover: 0 0% 100%;
+    --popover: 40 30% 98%;
     --popover-foreground: 220 20% 20%;
 
-    /* Primary - Vibrant Purple */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 90% 70%;
+    /* Primary - Blue */
+    --primary: 210 100% 50%;
+    --primary-foreground: 40 30% 98%;
 
-    /* Secondary - Soft Blue */
-    --secondary: 210 60% 96%;
+    /* Secondary - Light Cream */
+    --secondary: 40 35% 92%;
     --secondary-foreground: 220 20% 20%;
 
-    /* Muted - Light Gray */
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted - Soft Cream */
+    --muted: 40 30% 90%;
+    --muted-foreground: 220 15% 40%;
 
-    /* Accent - Bright Cyan */
-    --accent: 180 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Deep Blue */
+    --accent: 215 90% 45%;
+    --accent-foreground: 40 30% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 30% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 262 83% 58%;
+    --border: 40 20% 85%;
+    --input: 40 20% 85%;
+    --ring: 210 100% 50%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(292 73% 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(180 100% 50%), hsl(262 83% 58%));
-    --gradient-accent: linear-gradient(135deg, hsl(43 100% 60%), hsl(180 100% 50%));
-    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(250 80% 60% / 0.2), transparent 70%);
+    /* Minimal Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(210 100% 50% / 0.15), transparent 70%);
 
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(250 80% 60% / 0.3);
-    --shadow-card: 0 10px 40px hsl(220 30% 5% / 0.5);
-    --shadow-elevated: 0 20px 60px hsl(220 30% 5% / 0.7);
+    --shadow-glow: 0 0 40px hsl(210 100% 50% / 0.2);
+    --shadow-card: 0 10px 40px hsl(210 80% 40% / 0.3);
+    --shadow-elevated: 0 20px 60px hsl(210 80% 40% / 0.4);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -130,40 +129,25 @@ All colors MUST be HSL.
     text-shadow: 0 0 20px hsl(var(--primary-glow) / 0.5);
   }
 
-  .glass-card {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  }
-  
-  .glass-strong {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  /* Clean Minimal Styles */
+  .clean-card {
+    @apply bg-white border border-gray-100 shadow-sm;
   }
 
   .hover-lift {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-200 ease-out;
   }
   
   .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
   }
 
-  .gradient-border {
-    position: relative;
-    background: var(--gradient-primary);
-    padding: 2px;
-    border-radius: var(--radius);
+  .minimal-header {
+    @apply bg-white border-b border-gray-100;
   }
 
-  .gradient-border > * {
-    background: hsl(var(--card));
-    border-radius: calc(var(--radius) - 2px);
+  .clean-section {
+    @apply space-y-6;
   }
 }

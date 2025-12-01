@@ -237,77 +237,94 @@ const StudentDashboard = () => {
     totalKehadiran: absensiHistory?.filter(a => a.status === 'hadir').length || 0
   };
 
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="glass-strong shadow-lg border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
-              <span className="text-xl font-bold text-white">UI</span>
+    <div className="min-h-screen bg-background">
+      <header className="bg-card border-b border-border sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
+                  <span className="text-lg font-semibold text-white">{getInitials(user?.username || 'S')}</span>
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-foreground">Dashboard Mahasiswa</h1>
+                  <p className="text-xs text-muted-foreground">{user?.username}</p>
+                </div>
+              </div>
             </div>
-            <Avatar className="h-12 w-12 border-2 border-white/40 shadow-md">
-              <AvatarImage src={user?.foto_wajah} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Mahasiswa</h1>
-              <p className="text-xs text-gray-600 font-medium">Teknik Industri - Universitas Diponegoro</p>
-              <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
-            </div>
+            <Button onClick={logout} variant="ghost" size="sm" className="hover:bg-blue-50">
+              <LogOut className="mr-2 h-4 w-4" /> Keluar
+            </Button>
           </div>
-          <Button onClick={logout} variant="outline">
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Kelas Saya</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalKelas}</div>
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Kelas Saya</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.totalKelas}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Sesi Aktif</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.sesiAktif}</div>
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Sesi Aktif</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.sesiAktif}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-200 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Kehadiran</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalKehadiran}</div>
+          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Total Kehadiran</p>
+                  <p className="text-3xl font-semibold text-foreground">{stats.totalKehadiran}</p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-blue-300 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-blue-800" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="jadwal" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="jadwal">Jadwal Kelas</TabsTrigger>
-            <TabsTrigger value="sesi">Sesi Aktif</TabsTrigger>
-            <TabsTrigger value="riwayat">Riwayat Absensi</TabsTrigger>
+        <Tabs defaultValue="jadwal" className="space-y-6">
+          <TabsList className="bg-card border border-border p-1">
+            <TabsTrigger value="jadwal" className="data-[state=active]:bg-primary data-[state=active]:text-white">Jadwal Kelas</TabsTrigger>
+            <TabsTrigger value="sesi" className="data-[state=active]:bg-primary data-[state=active]:text-white">Sesi Aktif</TabsTrigger>
+            <TabsTrigger value="riwayat" className="data-[state=active]:bg-primary data-[state=active]:text-white">Riwayat Absensi</TabsTrigger>
           </TabsList>
 
           {/* Tab Jadwal Kelas */}
-          <TabsContent value="jadwal" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Kelas yang Diikuti</CardTitle>
-                <CardDescription>Daftar kelas yang Anda ambil semester ini</CardDescription>
+          <TabsContent value="jadwal" className="space-y-6">
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-lg font-semibold">Kelas yang Diikuti</CardTitle>
+                <CardDescription className="text-sm">Daftar kelas semester ini</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -457,11 +474,15 @@ const StudentDashboard = () => {
                         </TableCell>
                         <TableCell className="text-sm">{absen.jam_mulai} - {absen.jam_selesai}</TableCell>
                         <TableCell>
-                          <Badge variant={
-                            absen.status === 'hadir' ? 'default' : 
-                            absen.status === 'izin' || absen.status === 'sakit' ? 'secondary' : 
-                            'destructive'
-                          }>
+                          <Badge 
+                            className={
+                              absen.status === 'hadir' 
+                                ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                                : absen.status === 'izin' || absen.status === 'sakit'
+                                ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                : 'bg-red-500 hover:bg-red-600 text-white'
+                            }
+                          >
                             {absen.status.toUpperCase()}
                           </Badge>
                         </TableCell>

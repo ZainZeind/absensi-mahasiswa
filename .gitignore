@@ -1,33 +1,125 @@
-# Dependencies
+# ============================================
+# DEPENDENCIES
+# ============================================
 node_modules/
 package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
 
-# Build output
-dist/
-build/
-
-# Environment variables
+# ============================================
+# ENVIRONMENT VARIABLES (SENSITIVE!)
+# ============================================
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+backend/.env
+backend/.env.local
 
-# IDE
+# ============================================
+# BUILD OUTPUT
+# ============================================
+dist/
+build/
+.next/
+out/
+backend/dist/
+backend/build/
+
+# ============================================
+# DATABASE (SENSITIVE!)
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.sql.backup
+backup.sql
+database_backup/
+
+# ============================================
+# SENSITIVE FILES
+# ============================================
+# Database dumps dengan data sensitif
+*_dump.sql
+*_backup.sql
+
+# File konfigurasi database
+database.config.js
+db.config.js
+
+# Private keys dan certificates
+*.key
+*.pem
+*.cert
+*.crt
+private/
+secrets/
+
+# ============================================
+# IDE & EDITOR
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
 
-# OS
+# ============================================
+# OS FILES
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# Logs
+# ============================================
+# LOGS
+# ============================================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+logs/
+*.log.*
 
-# Backend generated
-backend/dist/
-backend/*.log
+# ============================================
+# TESTING & COVERAGE
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# TEMPORARY FILES
+# ============================================
+*.tmp
+*.temp
+.cache/
+.temp/
+tmp/
+
+# ============================================
+# UPLOADS & USER DATA (SENSITIVE!)
+# ============================================
+uploads/
+public/uploads/
+storage/
+public/storage/
+foto_wajah/
+foto_profil/
+
+# ============================================
+# MISCELLANEOUS
+# ============================================
+.claude/
+.vite/

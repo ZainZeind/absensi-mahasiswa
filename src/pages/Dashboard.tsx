@@ -35,16 +35,23 @@ const Dashboard = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Function to get user initials
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
   // Sidebar untuk Admin
   const AdminSidebar = () => (
-    <aside className="w-64 glass-strong border-r border-white/20 min-h-screen p-4">
+    <aside className="w-64 bg-card border-r border-border min-h-screen p-4">
       <div className="mb-8 text-center">
-        <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
-          <span className="text-2xl font-bold text-white">UI</span>
+        <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
+          <span className="text-2xl font-bold text-white">{getInitials(user.username)}</span>
         </div>
-        <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Teknik Industri</h2>
-        <p className="text-xs text-gray-600 font-medium">Universitas Diponegoro</p>
-        <p className="text-xs text-gray-500 mt-1">Admin Panel</p>
+        <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">Teknik Industri</h2>
+        <p className="text-xs text-muted-foreground font-medium">Universitas Diponegoro</p>
+        <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
       </div>
       
       <nav className="space-y-2">
@@ -109,15 +116,15 @@ const Dashboard = () => {
         </Link>
       </nav>
 
-      <div className="mt-auto pt-8 border-t">
-        <div className="mb-4 p-3 bg-gray-50 rounded">
-          <p className="text-sm font-medium">{user.username}</p>
-          <p className="text-xs text-gray-600">{user.email}</p>
-          <p className="text-xs text-blue-600 mt-1 capitalize">{user.role}</p>
+      <div className="mt-auto pt-8 border-t border-border">
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <p className="text-sm font-medium text-foreground">{user.username}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+          <p className="text-xs text-primary mt-1 capitalize font-semibold">{user.role}</p>
         </div>
         <Button 
           variant="outline" 
-          className="w-full justify-start"
+          className="w-full justify-start hover:bg-blue-50 border-border"
           onClick={handleLogout}
         >
           <LogOut className="w-4 h-4 mr-2" />
@@ -130,7 +137,7 @@ const Dashboard = () => {
   // Render berdasarkan role
   if (user.role === "admin") {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <main className="flex-1 p-8">
           <Routes>

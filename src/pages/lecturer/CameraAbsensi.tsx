@@ -254,43 +254,43 @@ const CameraAbsensi = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Absensi Kamera</h1>
-            {sesiInfo && (
-              <div className="space-y-1">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold">{sesiInfo.matakuliah_kode}</span> - {sesiInfo.matakuliah_nama}
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-card border-b border-border sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900">Absensi Kamera</h1>
+              {sesiInfo && (
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {sesiInfo.matakuliah_kode} - {sesiInfo.matakuliah_nama}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {sesiInfo.kelas_nama} | Ruang {sesiInfo.ruang} | {sesiInfo.dosen_nama}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+              <X className="mr-2 h-4 w-4" /> Tutup
+            </Button>
           </div>
-          <Button variant="outline" onClick={() => navigate(-1)}>
-            <X className="mr-2 h-4 w-4" /> Tutup
-          </Button>
         </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto px-6 py-6">
         {/* Info Kehadiran */}
         {sesiInfo && (
-          <Card className="mb-6 border-2 border-blue-200 bg-blue-50">
+          <Card className="mb-6 border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-900">Kehadiran Hari Ini</h3>
-                  <p className="text-sm text-blue-700">
-                    {new Date(sesiInfo.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  <h3 className="text-base font-semibold text-gray-900">Kehadiran Sesi Ini</h3>
+                  <p className="text-sm text-gray-600 mt-0.5">
+                    {new Date(sesiInfo.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-900">
-                    {sesiInfo.total_hadir || 0} / {sesiInfo.total_mahasiswa || 0}
+                  <div className="text-3xl font-bold text-gray-900">
+                    {sesiInfo.total_hadir || 0}<span className="text-gray-400">/</span>{sesiInfo.total_mahasiswa || 0}
                   </div>
-                  <p className="text-sm text-blue-700">Mahasiswa Hadir</p>
+                  <p className="text-xs text-gray-500">Mahasiswa Hadir</p>
                 </div>
               </div>
             </CardContent>
@@ -304,10 +304,10 @@ const CameraAbsensi = () => {
               <div className="space-y-2">
                 <strong className="text-lg">⚠️ Akses Kamera Diblokir</strong>
                 <p>Browser memblokir akses kamera karena koneksi tidak aman.</p>
-                <div className="bg-red-50 p-3 rounded mt-2 border border-red-200">
+                <div className="bg-red-50 p-3 rounded-lg mt-2 border border-red-200">
                   <p className="font-semibold mb-1">Solusi:</p>
                   <ol className="list-decimal list-inside text-sm space-y-1">
-                    <li>Buka <code className="bg-red-100 px-2 py-0.5 rounded">http://localhost:8081</code> (bukan IP address)</li>
+                    <li>Buka <code className="bg-blue-100 px-2 py-0.5 rounded font-mono">http://localhost:8081</code> (bukan IP address)</li>
                     <li>Atau hubungi admin untuk setup HTTPS</li>
                   </ol>
                   <Button 
@@ -408,7 +408,7 @@ const CameraAbsensi = () => {
                 )}
               </Button>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
                 <h4 className="font-semibold text-sm mb-2">Instruksi:</h4>
                 <ol className="text-sm space-y-1 list-decimal list-inside">
                   <li>Nyalakan kamera</li>
@@ -419,7 +419,7 @@ const CameraAbsensi = () => {
               </div>
 
               {!isCameraActive && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="font-semibold text-sm mb-2 text-yellow-800">⚠️ Izin Kamera Diperlukan</h4>
                   <p className="text-xs text-yellow-700 mb-2">
                     Jika kamera tidak menyala, pastikan Anda telah memberikan izin:

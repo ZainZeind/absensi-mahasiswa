@@ -5,7 +5,7 @@ Aplikasi web untuk mengelola absensi mahasiswa dengan fitur camera-based attenda
 ## 🚀 Fitur Utama
 
 - **Dashboard Admin**: Kelola mahasiswa, dosen, mata kuliah, kelas, dan enrollment
-- **Dashboard Dosen**: Buat sesi absensi, scan webcam mahasiswa, monitor kehadiran
+- **Dashboard Dosen**: Buat sesi absensi, scan QR/webcam mahasiswa, monitor kehadiran
 - **Dashboard Mahasiswa**: Lihat jadwal kelas, sesi aktif, dan riwayat absensi
 - **Camera Absensi**: Absensi menggunakan webcam dengan input NIM
 - **Multi-role Authentication**: Admin, Dosen, Mahasiswa dengan JWT
@@ -37,7 +37,7 @@ Aplikasi web untuk mengelola absensi mahasiswa dengan fitur camera-based attenda
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/absensi-mahasiswa.git
+git clone https://github.com/ZainZeind/absensi-mahasiswa.git
 cd absensi-mahasiswa
 ```
 
@@ -163,15 +163,26 @@ Fitur camera absensi menggunakan `getUserMedia` API yang membutuhkan:
 
 ⚠️ **Catatan**: Camera hanya bisa diakses di `http://localhost` atau `https`. Tidak bisa di IP address seperti `http://192.168.x.x`
 
-## 🔒 Security
+## 🔒 Security Best Practices
 
-Lihat [SECURITY.md](SECURITY.md) untuk panduan keamanan lengkap.
+### JANGAN Upload ke Git:
+- ❌ `.env` files
+- ❌ `node_modules/`
+- ❌ Database dumps dengan data real
+- ❌ Private keys
+- ❌ Folder uploads/foto
 
-**Quick reminders:**
-- ❌ JANGAN commit file `.env`
-- ✅ Gunakan password kuat di production
-- ✅ Ganti JWT_SECRET dengan random string
-- ✅ Update dependencies secara rutin
+### Untuk Production:
+1. Ganti semua password default
+2. Gunakan JWT_SECRET yang kuat (min 32 karakter random)
+3. Gunakan HTTPS
+4. Set NODE_ENV=production
+5. Batasi CORS origins
+6. Gunakan database password yang kuat
+7. Backup database secara rutin
+8. Implementasi rate limiting
+9. Validasi input di backend
+10. Sanitize output untuk mencegah XSS
 
 ## 📁 Struktur Folder
 
@@ -182,6 +193,7 @@ absensi-mahasiswa/
 │   │   ├── index.ts          # Main server
 │   │   ├── config/           # Database config
 │   │   ├── middleware/       # Auth middleware
+│   │   ├── models/           # Sequelize models (unused)
 │   │   └── types/            # TypeScript types
 │   ├── database_schema.sql   # Database schema
 │   ├── seed_dummy_data.sql   # Sample data
@@ -192,6 +204,7 @@ absensi-mahasiswa/
 │   │   ├── lecturer/        # Dosen pages
 │   │   └── student/         # Mahasiswa pages
 │   ├── components/          # Reusable components
+│   ├── contexts/           # React contexts
 │   ├── services/           # API services
 │   └── types/              # TypeScript types
 └── public/                 # Static files
@@ -221,3 +234,11 @@ This project is private and for educational purposes only.
 ## 👥 Contact
 
 For questions or issues, please contact the development team.
+
+---
+
+**⚠️ SECURITY REMINDER**: 
+- Never commit `.env` files
+- Always use strong passwords in production
+- Keep dependencies updated
+- Follow security best practices

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiGet } from "@/services/api";
 import { Users, GraduationCap, BookOpen, Calendar, ClipboardList } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminStats {
   total_mahasiswa: number;
@@ -12,6 +13,8 @@ interface AdminStats {
 }
 
 const AdminDashboardHome = () => {
+  const { user } = useAuth();
+  
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
@@ -24,55 +27,85 @@ const AdminDashboardHome = () => {
     return <div className="flex justify-center p-8">Loading...</div>;
   }
 
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold">Dashboard Admin</h2>
-        <p className="text-muted-foreground">Selamat datang di sistem absensi kampus</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">Dashboard Admin</h2>
+          <p className="text-sm text-muted-foreground mt-1">Kelola sistem absensi kampus</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-sm font-semibold text-foreground">{user?.username}</p>
+            <p className="text-xs text-muted-foreground">{user?.email}</p>
+          </div>
+          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
+            <span className="text-lg font-bold text-white">{getInitials(user?.username || 'AD')}</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Mahasiswa</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_mahasiswa || 0}</div>
-            <p className="text-xs text-muted-foreground">Mahasiswa terdaftar</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Mahasiswa</p>
+                <p className="text-3xl font-semibold text-foreground">{stats?.total_mahasiswa || 0}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <GraduationCap className="h-6 w-6 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Dosen</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_dosen || 0}</div>
-            <p className="text-xs text-muted-foreground">Dosen aktif</p>
+        <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Dosen</p>
+                <p className="text-3xl font-semibold text-foreground">{stats?.total_dosen || 0}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-blue-200 flex items-center justify-center">
+                <Users className="h-6 w-6 text-blue-700" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Mata Kuliah</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_matakuliah || 0}</div>
-            <p className="text-xs text-muted-foreground">Mata kuliah tersedia</p>
+        <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Mata Kuliah</p>
+                <p className="text-3xl font-semibold text-foreground">{stats?.total_matakuliah || 0}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-blue-300 flex items-center justify-center">
+                <BookOpen className="h-6 w-6 text-blue-800" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Kelas</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total_kelas || 0}</div>
-            <p className="text-xs text-muted-foreground">Kelas aktif</p>
+        <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Kelas Aktif</p>
+                <p className="text-3xl font-semibold text-foreground">{stats?.total_kelas || 0}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-blue-400 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-blue-900" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
