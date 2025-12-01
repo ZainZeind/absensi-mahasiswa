@@ -3,22 +3,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { 
   Users, BookOpen, Calendar, BarChart3, Settings, 
-  LogOut, Home, GraduationCap, UserCog, ClipboardList 
+  LogOut, Home, GraduationCap, UserCog, ClipboardList, UserPlus
 } from "lucide-react";
 
 // Admin Pages
-import AdminDashboardHome from "./admin/AdminDashboardHome.tsx";
-import MahasiswaManagement from "./admin/MahasiswaManagement.tsx";
-import DosenManagement from "./admin/DosenManagement.tsx";
-import MataKuliahManagement from "./admin/MataKuliahManagement.tsx";
-import KelasManagement from "./admin/KelasManagement.tsx";
-import ReportManagement from "./admin/ReportManagement.tsx";
+import AdminDashboardHome from "./admin/AdminDashboardHome";
+import MahasiswaManagement from "./admin/MahasiswaManagement";
+import DosenManagement from "./admin/DosenManagement";
+import MataKuliahManagement from "./admin/MataKuliahManagement";
+import KelasManagement from "./admin/KelasManagement";
+import EnrollmentManagement from "./admin/EnrollmentManagement";
+import ReportManagement from "./admin/ReportManagement";
 
 // Dosen Pages  
-import DosenDashboard from "./lecturer/LecturerDashboard.tsx";
+import DosenDashboard from "./lecturer/LecturerDashboard";
 
 // Mahasiswa Pages
-import MahasiswaDashboard from "./student/StudentDashboard.tsx";
+import MahasiswaDashboard from "./student/StudentDashboard";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -93,6 +94,16 @@ const Dashboard = () => {
           </Button>
         </Link>
         
+        <Link to="/dashboard/enrollment">
+          <Button 
+            variant={isActive("/dashboard/enrollment") ? "default" : "ghost"} 
+            className="w-full justify-start"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Enrollment
+          </Button>
+        </Link>
+        
         <Link to="/dashboard/report">
           <Button 
             variant={isActive("/dashboard/report") ? "default" : "ghost"} 
@@ -134,6 +145,7 @@ const Dashboard = () => {
             <Route path="dosen" element={<DosenManagement />} />
             <Route path="matakuliah" element={<MataKuliahManagement />} />
             <Route path="kelas" element={<KelasManagement />} />
+            <Route path="enrollment" element={<EnrollmentManagement />} />
             <Route path="report" element={<ReportManagement />} />
           </Routes>
         </main>

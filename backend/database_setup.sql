@@ -1,7 +1,14 @@
+-- ============================================
 -- Database: absensi_kampus
-CREATE DATABASE IF NOT EXISTS absensi_kampus CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Sistem Absensi Mahasiswa
+-- ============================================
 
+CREATE DATABASE IF NOT EXISTS absensi_kampus CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE absensi_kampus;
+
+-- ============================================
+-- TABLE DEFINITIONS
+-- ============================================
 
 -- Table users
 CREATE TABLE IF NOT EXISTS users (
@@ -145,7 +152,7 @@ CREATE TABLE IF NOT EXISTS sesi_absensi (
     FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_kelas_dosen (kelas_id, dosen_id),
-    INDEX_idx_kode_sesi (kode_sesi),
+    INDEX idx_kode_sesi (kode_sesi),
     INDEX idx_waktu_mulai (waktu_mulai),
     INDEX idx_is_active (is_active)
 );
@@ -197,17 +204,50 @@ CREATE TABLE IF NOT EXISTS absensi (
     INDEX idx_is_validated (is_validated)
 );
 
--- Insert default admin user
+-- ============================================
+-- DEFAULT DATA & SAMPLE DATA
+-- ============================================
+
+-- Insert default admin user (Password: admin123)
 INSERT INTO users (username, email, password, role) VALUES
-('admin', 'admin@kampus.ac.id', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', 'admin')
+('admin', 'admin@absensi.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', 'admin')
 ON DUPLICATE KEY UPDATE id=id;
 
--- Password for default admin: admin123
-
--- Sample data (opsional)
 -- Insert sample mata kuliah
 INSERT INTO mata_kuliah (kode, nama, sks, semester, jurusan, deskripsi) VALUES
 ('IF101', 'Pemrograman Web', 3, 3, 'Teknik Informatika', 'Mempelajari dasar-dasar pemrograman web menggunakan HTML, CSS, dan JavaScript'),
 ('IF102', 'Algoritma dan Struktur Data', 4, 2, 'Teknik Informatika', 'Mempelajari konsep algoritma dan struktur data fundamental'),
 ('SI101', 'Sistem Informasi Manajemen', 3, 4, 'Sistem Informasi', 'Mempelajari konsep dan implementasi sistem informasi dalam manajemen')
 ON DUPLICATE KEY UPDATE id=id;
+
+-- Insert dummy dosen
+INSERT INTO dosen (nidn, nama, email, jurusan, nomor_hp) VALUES
+('0001234567', 'Dr. Ahmad Fauzi', 'ahmad.fauzi@kampus.ac.id', 'Teknik Informatika', '081234567890'),
+('0002234568', 'Dr. Siti Nurhaliza', 'siti.nurhaliza@kampus.ac.id', 'Sistem Informasi', '081234567891')
+ON DUPLICATE KEY UPDATE id=id;
+
+-- Insert dummy mahasiswa  
+INSERT INTO mahasiswa (nim, nama, email, jurusan, semester, nomor_hp) VALUES
+('2021010001', 'Budi Santoso', 'budi.santoso@student.kampus.ac.id', 'Teknik Informatika', 5, '081234567892'),
+('2021010002', 'Ani Wijaya', 'ani.wijaya@student.kampus.ac.id', 'Teknik Informatika', 5, '081234567893'),
+('2021020001', 'Citra Dewi', 'citra.dewi@student.kampus.ac.id', 'Sistem Informasi', 3, '081234567894')
+ON DUPLICATE KEY UPDATE id=id;
+
+-- Insert users untuk dosen (Password: admin123)
+INSERT INTO users (username, email, password, role, profile_id, profile_type) VALUES
+('dosen1', 'ahmad.fauzi@kampus.ac.id', '$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2', 'dosen', 1, 'dosen'),
+('dosen2', 'siti.nurhaliza@kampus.ac.id', '$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2', 'dosen', 2, 'dosen')
+ON DUPLICATE KEY UPDATE password='$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2';
+
+-- Insert users untuk mahasiswa (Password: admin123)
+INSERT INTO users (username, email, password, role, profile_id, profile_type) VALUES
+('mhs1', 'budi.santoso@student.kampus.ac.id', '$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2', 'mahasiswa', 1, 'mahasiswa'),
+('mhs2', 'ani.wijaya@student.kampus.ac.id', '$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2', 'mahasiswa', 2, 'mahasiswa'),
+('mhs3', 'citra.dewi@student.kampus.ac.id', '$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2', 'mahasiswa', 3, 'mahasiswa')
+ON DUPLICATE KEY UPDATE password='$2b$12$ePVEBNaCqYX2DIo0BSsKouQuwjGhkdGLhltzC6WeuquYeWbN9ezb2';
+
+-- ============================================
+-- END OF DATABASE SETUP
+-- ============================================
+-- All users default password: admin123
+-- Database ready to use!

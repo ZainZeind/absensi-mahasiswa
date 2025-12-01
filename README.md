@@ -1,117 +1,85 @@
 # 🎓 Sistem Absensi Mahasiswa
 
-Sistem absensi kampus berbasis web menggunakan React + TypeScript untuk frontend dan Express + MySQL untuk backend.
+Sistem presensi kampus berbasis web dengan fitur lengkap untuk mahasiswa, dosen, dan admin.
 
-## ✨ Fitur Utama
+## ✨ Fitur Lengkap
 
-### 👨‍💼 Admin
-- ✅ Dashboard dengan statistik lengkap
-- ✅ CRUD Mahasiswa (Create, Read, Update, Delete)
-- ✅ CRUD Dosen (Create, Read, Update, Delete)
-- ✅ Management Mata Kuliah
-- ✅ Management Kelas
-- ✅ Laporan Kehadiran
-- ✅ Management Device
+### 🔐 Untuk Mahasiswa
+- ✅ Login menggunakan username  
+- 📅 Melihat jadwal kuliah
+- 📝 Melihat sesi presensi aktif
+- ✋ Absensi kehadiran (scan wajah/QR/manual)
+- 📊 Riwayat absensi pribadi per mata kuliah
+- 🖼️ Profil dengan foto wajah
+- ⏰ Validasi ketepatan waktu (hadir/terlambat)
 
-### 👨‍🏫 Dosen
-- 📊 Dashboard dengan statistik kelas
-- 📝 Kelola sesi absensi
-- 👥 Lihat daftar mahasiswa per kelas
-- 📈 Monitor kehadiran mahasiswa
+### 👨‍🏫 Untuk Dosen
+- 🔑 Login sebagai dosen
+- 📚 Melihat daftar kelas yang diajar
+- ⏰ Menjadwalkan sesi presensi (tanggal, waktu mulai/selesai)
+- 👥 Melihat daftar mahasiswa per kelas (dari enrollment)
+- ✅ Melihat absensi mahasiswa per sesi
+- 📝 Mengubah status absensi (hadir/izin/sakit/alfa)
+- 📈 Rekapitulasi absensi kelas
+- 📊 Export laporan per kelas
 
-### 👨‍🎓 Mahasiswa
-- 📊 Dashboard kehadiran pribadi
-- 📚 Lihat kelas terdaftar
-- ✅ Submit absensi
-- 📈 Lihat statistik kehadiran
+### 🧑‍💻 Untuk Admin
+- 👤 CRUD data mahasiswa (NIM, Nama, Jurusan, FotoWajah)
+- 👨‍🏫 CRUD data dosen (NIDN, Nama, Email)
+- 📖 CRUD mata kuliah (Kode, Nama, SKS, Semester)
+- 🏫 CRUD kelas (Jadwal, Ruangan, Dosen, Mata Kuliah)
+- 🔗 Kelola enrollment mahasiswa ke kelas
+- 📊 Export laporan presensi (Excel/PDF)
+- 📈 Dashboard statistik lengkap
+
+## 🛠️ Tech Stack
+
+**Frontend:** React 18 + TypeScript + Vite + TanStack Query + shadcn/ui + Tailwind CSS
+
+**Backend:** Node.js + Express + TypeScript + MySQL 8.0 + JWT + bcryptjs
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+ 
-- MySQL 8.0
-- XAMPP (untuk MySQL) atau MySQL Server standalone
-
 ### 1. Setup Database
 ```bash
-# Start XAMPP MySQL (port 3308)
-# Import database schema
-mysql -u root -p absensi_kampus < backend/database_import.sql
+# Single file import - includes schema, tables, and dummy data
+mysql -u root -P 3308 -h 127.0.0.1 < backend/database_setup.sql
 ```
 
-### 2. Setup Backend
+### 2. Start Backend
 ```bash
 cd backend
 npm install
-
-# Compile TypeScript
-npx tsc src/index.ts --outDir dist --esModuleInterop --resolveJsonModule --skipLibCheck --target ES2020 --module commonjs
-
-# Run server
-node dist/index.js
+npm run dev
 ```
 
-Backend: **http://localhost:3001**
-
-### 3. Setup Frontend
+### 3. Start Frontend
 ```bash
 npm install
 npm run dev
 ```
 
-Frontend: **http://localhost:8080**
+## 👥 Login Credentials
 
-## 🔐 Login
-- Username: `admin`
-- Password: `admin123`
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin123` |
+| Dosen | `dosen1`, `dosen2` | `admin123` |
+| Mahasiswa | `mhs1`, `mhs2`, `mhs3` | `admin123` |
 
-## 📁 Struktur
-Lihat [STRUKTUR_FOLDER.md](./STRUKTUR_FOLDER.md)
+## 📊 Database Tables
 
-## 🛠️ Tech Stack
+- **users** - User accounts (admin/dosen/mahasiswa)
+- **mahasiswa** - Student data  
+- **dosen** - Lecturer data
+- **mata_kuliah** - Course data
+- **kelas** - Class data
+- **enrollment** - Student-Class relationship
+- **sesi_absensi** - Attendance sessions
+- **absensi** - Attendance records
+- **devices** - Attendance devices
 
-**Frontend:** React, TypeScript, Vite, Tailwind CSS, shadcn/ui, TanStack Query
+## 🌐 Access
 
-**Backend:** Node.js, Express, TypeScript, MySQL, JWT, bcrypt
-
-## 📡 API Endpoints
-
-### Auth
-- POST `/api/auth/login` - Login
-- POST `/api/auth/logout` - Logout
-- GET `/api/auth/me` - Get current user
-
-### CRUD Endpoints
-- `/api/mahasiswa` - Mahasiswa CRUD
-- `/api/dosen` - Dosen CRUD
-- `/api/matakuliah` - Mata Kuliah CRUD
-- `/api/kelas` - Kelas CRUD
-- `/api/enrollment` - Enrollment management
-- `/api/sesi` - Sesi Absensi CRUD
-- `/api/absensi` - Absensi records
-- `/api/device` - Device management
-
-### Reports
-- GET `/api/report/mahasiswa/:id` - Student report
-- GET `/api/report/kelas/:id` - Class report
-- GET `/api/stats/admin` - Admin statistics
-- GET `/api/stats/dosen/:id` - Lecturer stats
-- GET `/api/stats/mahasiswa/:id` - Student stats
-
-## 🗄️ Database Tables
-- users, mahasiswa, dosen, mata_kuliah, kelas
-- enrollment, sesi_absensi, absensi, devices
-
-## 📝 TODO
-- [ ] Face recognition
-- [ ] Real-time notifications
-- [ ] PDF/Excel export
-- [ ] Mobile app
-- [ ] QR Code attendance
-- [ ] Geolocation verification
-
-## 📄 License
-MIT License
-
----
-Made with ❤️ for Indonesian Universities
+- **Frontend**: http://192.168.1.25:8080
+- **Backend API**: http://192.168.1.25:3001/api

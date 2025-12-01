@@ -59,7 +59,7 @@ const Landing = () => {
               <span className="text-xl font-bold text-gray-900">Sistem Absensi</span>
             </div>
             <Button 
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/login")}
               className="bg-blue-600 hover:bg-blue-700"
             >
               Login
@@ -92,7 +92,7 @@ const Landing = () => {
             <div className="flex flex-wrap gap-4">
               <Button 
                 size="lg" 
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/login")}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 h-14"
               >
                 Mulai Sekarang

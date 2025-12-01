@@ -243,20 +243,20 @@ app.get('/api/dosen/:id', authMiddleware, async (req, res) => {
 
 app.post('/api/dosen', authMiddleware, async (req, res) => {
   try {
-    const { nip, nama, email, no_telepon } = req.body;
+    const { nidn, nama, email, nomor_hp, jurusan } = req.body;
     
-    if (!nip || !nama || !email) {
-      return res.status(400).json({ success: false, message: 'NIP, nama, dan email harus diisi' });
+    if (!nidn || !nama || !email) {
+      return res.status(400).json({ success: false, message: 'NIDN, nama, dan email harus diisi' });
     }
 
     const [result]: any = await pool.query(
-      'INSERT INTO dosen (nip, nama, email, no_telepon) VALUES (?, ?, ?, ?)',
-      [nip, nama, email, no_telepon]
+      'INSERT INTO dosen (nidn, nama, email, nomor_hp, jurusan) VALUES (?, ?, ?, ?, ?)',
+      [nidn, nama, email, nomor_hp, jurusan]
     );
     res.json({ success: true, message: 'Dosen berhasil ditambahkan', data: { id: result.insertId } });
   } catch (error: any) {
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({ success: false, message: 'NIP atau email sudah terdaftar' });
+      return res.status(400).json({ success: false, message: 'NIDN atau email sudah terdaftar' });
     }
     res.status(500).json({ success: false, message: error.message });
   }
@@ -264,10 +264,10 @@ app.post('/api/dosen', authMiddleware, async (req, res) => {
 
 app.put('/api/dosen/:id', authMiddleware, async (req, res) => {
   try {
-    const { nip, nama, email, no_telepon } = req.body;
+    const { nidn, nama, email, nomor_hp, jurusan } = req.body;
     const [result]: any = await pool.query(
-      'UPDATE dosen SET nip = ?, nama = ?, email = ?, no_telepon = ? WHERE id = ?',
-      [nip, nama, email, no_telepon, req.params.id]
+      'UPDATE dosen SET nidn = ?, nama = ?, email = ?, nomor_hp = ?, jurusan = ? WHERE id = ?',
+      [nidn, nama, email, nomor_hp, jurusan, req.params.id]
     );
     
     if (result.affectedRows === 0) {

@@ -5,6 +5,7 @@ export interface User {
   role: 'admin' | 'dosen' | 'mahasiswa';
   profile?: any;
   lastLogin?: string;
+  foto_wajah?: string;
 }
 
 export interface LoginCredentials {
