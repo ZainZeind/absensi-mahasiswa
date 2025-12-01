@@ -778,24 +778,36 @@ app.post('/api/absensi', authMiddleware, async (req, res) => {
   try {
     const { sesi_id, mahasiswa_id, nim, status, device_id, lokasi, catatan, metode } = req.body;
     
+    console.log('POST /api/absensi - Body:', req.body);
+    
     let finalMahasiswaId = mahasiswa_id;
     
     // If NIM is provided instead of mahasiswa_id, lookup the ID
     if (!mahasiswa_id && nim) {
+      console.log('Looking up mahasiswa by NIM:', nim);
       const [mahasiswaResult]: any = await pool.query(
         'SELECT id FROM mahasiswa WHERE nim = ?',
         [nim]
       );
       
       if (mahasiswaResult.length === 0) {
+        console.log('Mahasiswa not found for NIM:', nim);
         return res.status(404).json({ success: false, message: 'Mahasiswa dengan NIM tersebut tidak ditemukan' });
       }
       
       finalMahasiswaId = mahasiswaResult[0].id;
+      console.log('Found mahasiswa_id:', finalMahasiswaId);
     }
     
+    console.log('Validation - sesi_id:', sesi_id, 'mahasiswa_id:', finalMahasiswaId, 'status:', status);
+    
     if (!sesi_id || !finalMahasiswaId || !status) {
-      return res.status(400).json({ success: false, message: 'Sesi, mahasiswa, dan status harus diisi' });
+      console.log('Validation failed - missing required fields');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Sesi, mahasiswa, dan status harus diisi',
+        debug: { sesi_id, mahasiswa_id: finalMahasiswaId, status }
+      });
     }
 
     // Check if already submitted
@@ -811,8 +823,8 @@ app.post('/api/absensi', authMiddleware, async (req, res) => {
     const absensiMetode = metode || 'webcam'; // Default to webcam if not specified
 
     const [result]: any = await pool.query(
-      'INSERT INTO absensi (sesi_id, mahasiswa_id, status, metode, waktu_absen, device_id, lokasi, catatan) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)',
-      [sesi_id, finalMahasiswaId, status, absensiMetode, device_id, lokasi, catatan]
+      'INSERT INTO absensi (sesi_id, mahasiswa_id, status, metode_absensi, waktu_absen, catatan) VALUES (?, ?, ?, ?, NOW(), ?)',
+      [sesi_id, finalMahasiswaId, status, absensiMetode, catatan]
     );
     res.json({ success: true, message: 'Absensi berhasil tercatat', data: { id: result.insertId, metode: absensiMetode } });
   } catch (error: any) {
