@@ -144,11 +144,15 @@ const EnrollmentManagement = () => {
                       <SelectValue placeholder="Pilih Kelas" />
                     </SelectTrigger>
                     <SelectContent>
-                      {kelasList?.map((kelas) => (
-                        <SelectItem key={kelas.id} value={kelas.id.toString()}>
-                          {kelas.nama} - {kelas.matakuliah_nama}
-                        </SelectItem>
-                      ))}
+                      {kelasList && kelasList.length > 0 ? (
+                        kelasList.map((kelas) => (
+                          <SelectItem key={kelas.id} value={kelas.id.toString()}>
+                            {kelas.nama} {kelas.matakuliah_nama ? `- ${kelas.matakuliah_nama}` : ''}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-gray-500">Tidak ada kelas tersedia. Buat kelas terlebih dahulu.</div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -160,11 +164,15 @@ const EnrollmentManagement = () => {
                       <SelectValue placeholder="Pilih Mahasiswa" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mahasiswaList?.map((mhs) => (
-                        <SelectItem key={mhs.id} value={mhs.id.toString()}>
-                          {mhs.nim} - {mhs.nama} ({mhs.jurusan})
-                        </SelectItem>
-                      ))}
+                      {mahasiswaList && mahasiswaList.length > 0 ? (
+                        mahasiswaList.map((mhs) => (
+                          <SelectItem key={mhs.id} value={mhs.id.toString()}>
+                            {mhs.nim ? `${mhs.nim} - ` : ''}{mhs.nama}{mhs.jurusan ? ` (${mhs.jurusan})` : ''}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-gray-500">Tidak ada mahasiswa tersedia. Tambah mahasiswa terlebih dahulu.</div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

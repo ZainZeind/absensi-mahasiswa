@@ -17,8 +17,16 @@ import { BookOpen, Users, Calendar, LogOut, Plus, Camera } from "lucide-react";
 interface Kelas {
   id: number;
   nama: string;
-  mata_kuliah_nama: string;
+  matakuliah_nama: string;
+  matakuliah_kode: string;
+  sks: number;
+  semester: number;
   dosen_nama: string;
+  dosen_nidn: string;
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  ruang: string;
   total_mahasiswa?: number;
 }
 
@@ -26,10 +34,16 @@ interface SesiAbsensi {
   id: number;
   kelas_id: number;
   kelas_nama: string;
-  mata_kuliah_nama: string;
+  matakuliah_nama: string;
+  matakuliah_kode: string;
+  sks: number;
+  dosen_nama: string;
+  dosen_nidn: string;
+  ruang: string;
   tanggal: string;
-  waktu_mulai: string;
-  waktu_selesai: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  materi: string;
   status: "active" | "completed" | "scheduled" | "cancelled";
   total_hadir?: number;
   total_mahasiswa?: number;
@@ -248,7 +262,6 @@ const LecturerDashboard = () => {
           <TabsList>
             <TabsTrigger value="kelas">Kelas Saya</TabsTrigger>
             <TabsTrigger value="sesi">Sesi Absensi</TabsTrigger>
-            <TabsTrigger value="rekap">Rekap</TabsTrigger>
           </TabsList>
 
           {/* Tab Kelas */}
@@ -262,16 +275,27 @@ const LecturerDashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nama Kelas</TableHead>
+                      <TableHead>Kode</TableHead>
                       <TableHead>Mata Kuliah</TableHead>
-                      <TableHead>Total Mahasiswa</TableHead>
+                      <TableHead>Kelas</TableHead>
+                      <TableHead>SKS</TableHead>
+                      <TableHead>Jadwal</TableHead>
+                      <TableHead>Ruang</TableHead>
+                      <TableHead>Mahasiswa</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {kelasList?.map((kelas) => (
                       <TableRow key={kelas.id}>
-                        <TableCell className="font-medium">{kelas.nama}</TableCell>
-                        <TableCell>{kelas.mata_kuliah_nama}</TableCell>
+                        <TableCell className="font-mono text-xs">{kelas.matakuliah_kode}</TableCell>
+                        <TableCell className="font-medium">{kelas.matakuliah_nama}</TableCell>
+                        <TableCell>{kelas.nama}</TableCell>
+                        <TableCell>{kelas.sks}</TableCell>
+                        <TableCell className="text-sm">
+                          <div>{kelas.hari}</div>
+                          <div className="text-muted-foreground text-xs">{kelas.jam_mulai} - {kelas.jam_selesai}</div>
+                        </TableCell>
+                        <TableCell>{kelas.ruang}</TableCell>
                         <TableCell>{kelas.total_mahasiswa || 0}</TableCell>
                       </TableRow>
                     ))}
@@ -324,7 +348,7 @@ const LecturerDashboard = () => {
                           <SelectContent>
                             {kelasList?.map((kelas) => (
                               <SelectItem key={kelas.id} value={kelas.id.toString()}>
-                                {kelas.nama} - {kelas.mata_kuliah_nama}
+                                {kelas.matakuliah_kode} - {kelas.matakuliah_nama} ({kelas.nama})
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -361,10 +385,12 @@ const LecturerDashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Kelas</TableHead>
+                      <TableHead>Kode</TableHead>
                       <TableHead>Mata Kuliah</TableHead>
+                      <TableHead>Kelas</TableHead>
                       <TableHead>Tanggal</TableHead>
-                      <TableHead>Waktu</TableHead>
+                      <TableHead>Jam</TableHead>
+                      <TableHead>Ruang</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Kehadiran</TableHead>
                       <TableHead>Aksi</TableHead>
@@ -373,10 +399,12 @@ const LecturerDashboard = () => {
                   <TableBody>
                     {sesiList?.map((sesi) => (
                       <TableRow key={sesi.id}>
+                        <TableCell className="font-mono text-xs">{sesi.matakuliah_kode}</TableCell>
+                        <TableCell className="font-medium">{sesi.matakuliah_nama}</TableCell>
                         <TableCell>{sesi.kelas_nama}</TableCell>
-                        <TableCell>{sesi.mata_kuliah_nama}</TableCell>
                         <TableCell>{new Date(sesi.tanggal).toLocaleDateString('id-ID')}</TableCell>
-                        <TableCell>{sesi.waktu_mulai} - {sesi.waktu_selesai}</TableCell>
+                        <TableCell className="text-sm">{sesi.jam_mulai} - {sesi.jam_selesai}</TableCell>
+                        <TableCell>{sesi.ruang}</TableCell>
                         <TableCell>
                           <Badge variant={
                             sesi.status === 'active' ? 'default' : 
@@ -489,20 +517,6 @@ const LecturerDashboard = () => {
             )}
           </TabsContent>
 
-          {/* Tab Rekap */}
-          <TabsContent value="rekap" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Rekap Kehadiran</CardTitle>
-                <CardDescription>Ringkasan kehadiran per kelas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Fitur rekap detail akan tersedia di halaman Laporan Admin
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </main>
     </div>

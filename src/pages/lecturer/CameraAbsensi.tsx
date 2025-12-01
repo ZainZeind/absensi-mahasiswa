@@ -96,12 +96,16 @@ const CameraAbsensi = () => {
   }, []);
 
   // Fetch sesi info
-  useEffect(() => {
+  const fetchSesiInfo = () => {
     if (sesiId) {
       apiGet(`/sesi/${sesiId}`).then(res => {
         setSesiInfo(res.data);
       });
     }
+  };
+
+  useEffect(() => {
+    fetchSesiInfo();
   }, [sesiId]);
 
   // Start camera
@@ -228,6 +232,8 @@ const CameraAbsensi = () => {
             description: `Absensi untuk NIM ${nim} berhasil dicatat`,
           });
           setNim("");
+          // Refresh sesi info untuk update counter
+          fetchSesiInfo();
         }
       } catch (error: any) {
         toast({
@@ -254,15 +260,42 @@ const CameraAbsensi = () => {
           <div>
             <h1 className="text-2xl font-bold">Absensi Kamera</h1>
             {sesiInfo && (
-              <p className="text-sm text-gray-600">
-                {sesiInfo.kelas_nama} - {sesiInfo.mata_kuliah_nama}
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold">{sesiInfo.matakuliah_kode}</span> - {sesiInfo.matakuliah_nama}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {sesiInfo.kelas_nama} | Ruang {sesiInfo.ruang} | {sesiInfo.dosen_nama}
+                </p>
+              </div>
             )}
           </div>
           <Button variant="outline" onClick={() => navigate(-1)}>
             <X className="mr-2 h-4 w-4" /> Tutup
           </Button>
         </div>
+
+        {/* Info Kehadiran */}
+        {sesiInfo && (
+          <Card className="mb-6 border-2 border-blue-200 bg-blue-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">Kehadiran Hari Ini</h3>
+                  <p className="text-sm text-blue-700">
+                    {new Date(sesiInfo.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-blue-900">
+                    {sesiInfo.total_hadir || 0} / {sesiInfo.total_mahasiswa || 0}
+                  </div>
+                  <p className="text-sm text-blue-700">Mahasiswa Hadir</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {!cameraSupported && (
           <Alert variant="destructive" className="mb-6">

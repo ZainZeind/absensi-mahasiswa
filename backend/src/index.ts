@@ -83,10 +83,14 @@ app.post('/api/auth/login', async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Username and password required' });
+      return res.status(400).json({ success: false, message: 'Username/email and password required' });
     }
 
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+    // Login dengan username ATAU email
+    const [rows]: any = await pool.query(
+      'SELECT * FROM users WHERE username = ? OR email = ?', 
+      [username, username]
+    );
     
     if (rows.length === 0) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -394,7 +398,9 @@ app.get('/api/kelas', authMiddleware, async (req: any, res: Response) => {
     console.log('GET /api/kelas - User role:', req.user?.role, 'User ID:', req.user?.id);
     
     let query = `
-      SELECT k.*, mk.nama as mata_kuliah_nama, mk.kode as mata_kuliah_kode, d.nama as dosen_nama
+      SELECT k.*, 
+        mk.nama as matakuliah_nama, mk.kode as matakuliah_kode, mk.sks, mk.semester,
+        d.nama as dosen_nama, d.nidn as dosen_nidn, d.email as dosen_email, d.jurusan as dosen_jurusan
       FROM kelas k
       LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
       LEFT JOIN dosen d ON k.dosen_id = d.id
@@ -500,11 +506,16 @@ app.get('/api/enrollment', authMiddleware, async (req, res) => {
   try {
     const { kelas_id, mahasiswa_id } = req.query;
     let query = `
-      SELECT e.*, m.nim, m.nama as mahasiswa_nama, k.nama as kelas_nama, mk.nama as mata_kuliah_nama
+      SELECT e.*, 
+        m.nim, m.nama as mahasiswa_nama, m.email as mahasiswa_email,
+        k.nama as kelas_nama, k.hari, k.jam_mulai, k.jam_selesai, k.ruang,
+        mk.nama as matakuliah_nama, mk.kode as matakuliah_kode, mk.sks,
+        d.nama as dosen_nama, d.nidn as dosen_nidn
       FROM enrollment e
       LEFT JOIN mahasiswa m ON e.mahasiswa_id = m.id
       LEFT JOIN kelas k ON e.kelas_id = k.id
       LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
+      LEFT JOIN dosen d ON k.dosen_id = d.id
       WHERE 1=1
     `;
     const params: any[] = [];
@@ -572,7 +583,12 @@ app.get('/api/sesi', authMiddleware, async (req, res) => {
   try {
     const { kelas_id } = req.query;
     let query = `
-      SELECT s.*, k.nama as kelas_nama, mk.nama as mata_kuliah_nama, d.nama as dosen_nama
+      SELECT s.*, 
+        k.nama as kelas_nama, k.ruang, k.hari, k.jam_mulai as kelas_jam_mulai, k.jam_selesai as kelas_jam_selesai,
+        mk.nama as matakuliah_nama, mk.kode as matakuliah_kode, mk.sks,
+        d.nama as dosen_nama, d.nidn as dosen_nidn, d.email as dosen_email,
+        (SELECT COUNT(*) FROM absensi a WHERE a.sesi_id = s.id AND a.status = 'hadir') as total_hadir,
+        (SELECT COUNT(*) FROM enrollment e WHERE e.kelas_id = s.kelas_id) as total_mahasiswa
       FROM sesi_absensi s
       LEFT JOIN kelas k ON s.kelas_id = k.id
       LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
@@ -598,10 +614,16 @@ app.get('/api/sesi', authMiddleware, async (req, res) => {
 app.get('/api/sesi/:id', authMiddleware, async (req, res) => {
   try {
     const [rows]: any = await pool.query(`
-      SELECT s.*, k.nama as kelas_nama, mk.nama as mata_kuliah_nama
+      SELECT s.*, 
+        k.nama as kelas_nama, k.ruang, k.hari,
+        mk.nama as matakuliah_nama, mk.kode as matakuliah_kode, mk.sks,
+        d.nama as dosen_nama, d.nidn as dosen_nidn, d.email as dosen_email,
+        (SELECT COUNT(*) FROM absensi a WHERE a.sesi_id = s.id AND a.status = 'hadir') as total_hadir,
+        (SELECT COUNT(*) FROM enrollment e WHERE e.kelas_id = s.kelas_id) as total_mahasiswa
       FROM sesi_absensi s
       LEFT JOIN kelas k ON s.kelas_id = k.id
       LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
+      LEFT JOIN dosen d ON k.dosen_id = d.id
       WHERE s.id = ?
     `, [req.params.id]);
     
@@ -747,11 +769,18 @@ app.get('/api/absensi', authMiddleware, async (req, res) => {
   try {
     const { sesi_id, mahasiswa_id } = req.query;
     let query = `
-      SELECT a.*, m.nim, m.nama as mahasiswa_nama, s.tanggal, k.nama as kelas_nama
+      SELECT a.*, 
+        m.nim, m.nama as mahasiswa_nama, m.email as mahasiswa_email,
+        s.tanggal, s.jam_mulai, s.jam_selesai, s.materi,
+        k.nama as kelas_nama, k.ruang,
+        mk.nama as matakuliah_nama, mk.kode as matakuliah_kode, mk.sks,
+        d.nama as dosen_nama, d.nidn as dosen_nidn
       FROM absensi a
       LEFT JOIN mahasiswa m ON a.mahasiswa_id = m.id
       LEFT JOIN sesi_absensi s ON a.sesi_id = s.id
       LEFT JOIN kelas k ON s.kelas_id = k.id
+      LEFT JOIN mata_kuliah mk ON k.matkul_id = mk.id
+      LEFT JOIN dosen d ON k.dosen_id = d.id
       WHERE 1=1
     `;
     const params: any[] = [];

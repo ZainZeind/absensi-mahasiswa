@@ -23,8 +23,12 @@ interface Kelas {
   kapasitas: number;
   semester: string;
   tahun_ajaran: string;
-  mata_kuliah_nama?: string;
+  matakuliah_nama?: string;
+  matakuliah_kode?: string;
+  sks?: number;
   dosen_nama?: string;
+  dosen_nidn?: string;
+  dosen_jurusan?: string;
 }
 
 interface MataKuliah {
@@ -321,8 +325,20 @@ const KelasManagement = () => {
               {kelasData?.map((kelas) => (
                 <TableRow key={kelas.id}>
                   <TableCell className="font-medium">{kelas.nama}</TableCell>
-                  <TableCell>{kelas.mata_kuliah_nama || "-"}</TableCell>
-                  <TableCell>{kelas.dosen_nama || "-"}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{kelas.matakuliah_nama || "-"}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {kelas.matakuliah_kode} | {kelas.sks} SKS
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium text-sm">{kelas.dosen_nama || "-"}</div>
+                      <div className="text-xs text-muted-foreground">NIDN: {kelas.dosen_nidn}</div>
+                    </div>
+                  </TableCell>
                   <TableCell>{kelas.hari}, {kelas.jam_mulai}-{kelas.jam_selesai}</TableCell>
                   <TableCell>{kelas.ruang}</TableCell>
                   <TableCell>{kelas.kapasitas}</TableCell>

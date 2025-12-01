@@ -18,7 +18,14 @@ interface EnrolledKelas {
   kelas_id: number;
   kelas_nama: string;
   matakuliah_nama: string;
+  matakuliah_kode: string;
+  sks: number;
   dosen_nama: string;
+  dosen_nidn: string;
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  ruang: string;
   tanggal_enroll: string;
 }
 
@@ -27,10 +34,15 @@ interface SesiAbsensi {
   kelas_id: number;
   kelas_nama: string;
   matakuliah_nama: string;
+  matakuliah_kode: string;
+  sks: number;
   dosen_nama: string;
+  dosen_nidn: string;
+  ruang: string;
   tanggal: string;
-  waktu_mulai: string;
-  waktu_selesai: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  materi: string;
   status: "active" | "completed" | "scheduled";
 }
 
@@ -39,8 +51,15 @@ interface AbsensiHistory {
   sesi_id: number;
   kelas_nama: string;
   matakuliah_nama: string;
+  matakuliah_kode: string;
+  sks: number;
+  dosen_nama: string;
+  dosen_nidn: string;
+  ruang: string;
   tanggal: string;
-  waktu_mulai: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  materi: string;
   status: "hadir" | "tidak_hadir" | "izin" | "sakit";
   waktu_absen: string;
 }
@@ -292,19 +311,35 @@ const StudentDashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nama Kelas</TableHead>
+                      <TableHead>Kode</TableHead>
                       <TableHead>Mata Kuliah</TableHead>
+                      <TableHead>Kelas</TableHead>
+                      <TableHead>SKS</TableHead>
                       <TableHead>Dosen</TableHead>
-                      <TableHead>Tanggal Daftar</TableHead>
+                      <TableHead>Jadwal</TableHead>
+                      <TableHead>Ruang</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {enrolledKelas?.map((kelas) => (
                       <TableRow key={kelas.id}>
-                        <TableCell className="font-medium">{kelas.kelas_nama}</TableCell>
-                        <TableCell>{kelas.matakuliah_nama}</TableCell>
-                        <TableCell>{kelas.dosen_nama}</TableCell>
-                        <TableCell>{new Date(kelas.tanggal_enroll).toLocaleDateString('id-ID')}</TableCell>
+                        <TableCell className="font-mono text-sm">{kelas.matakuliah_kode}</TableCell>
+                        <TableCell className="font-medium">{kelas.matakuliah_nama}</TableCell>
+                        <TableCell>{kelas.kelas_nama}</TableCell>
+                        <TableCell>{kelas.sks}</TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-sm">{kelas.dosen_nama}</div>
+                            <div className="text-xs text-muted-foreground">NIDN: {kelas.dosen_nidn}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{kelas.hari}</div>
+                            <div className="text-muted-foreground">{kelas.jam_mulai} - {kelas.jam_selesai}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{kelas.ruang}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -332,13 +367,20 @@ const StudentDashboard = () => {
                         <Card key={sesi.id} className="border-2 border-primary">
                           <CardHeader>
                             <div className="flex justify-between items-start">
-                              <div>
-                                <CardTitle className="text-lg">{sesi.kelas_nama}</CardTitle>
-                                <CardDescription>
-                                  {sesi.matakuliah_nama} - {sesi.dosen_nama}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="outline" className="font-mono text-xs">{sesi.matakuliah_kode}</Badge>
+                                  <Badge variant="default">AKTIF</Badge>
+                                </div>
+                                <CardTitle className="text-lg">{sesi.matakuliah_nama}</CardTitle>
+                                <CardDescription className="mt-1">
+                                  <div className="space-y-1">
+                                    <div><strong>Kelas:</strong> {sesi.kelas_nama} | {sesi.ruang}</div>
+                                    <div><strong>Dosen:</strong> {sesi.dosen_nama} (NIDN: {sesi.dosen_nidn})</div>
+                                    {sesi.materi && <div><strong>Materi:</strong> {sesi.materi}</div>}
+                                  </div>
                                 </CardDescription>
                               </div>
-                              <Badge variant="default">AKTIF</Badge>
                             </div>
                           </CardHeader>
                           <CardContent>
@@ -350,18 +392,14 @@ const StudentDashboard = () => {
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-4 w-4 text-muted-foreground" />
-                                  {sesi.waktu_mulai} - {sesi.waktu_selesai}
+                                  {sesi.jam_mulai} - {sesi.jam_selesai}
                                 </div>
                               </div>
-                              {sudahAbsen ? (
+                              {sudahAbsen && (
                                 <Badge variant="secondary">
                                   <CheckCircle className="mr-1 h-3 w-3" />
                                   Sudah Absen
                                 </Badge>
-                              ) : (
-                                <Button onClick={() => handleOpenAbsenDialog(sesi.id)}>
-                                  <Camera className="mr-2 h-4 w-4" /> Absen Sekarang
-                                </Button>
                               )}
                             </div>
                           </CardContent>
@@ -390,9 +428,11 @@ const StudentDashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Tanggal</TableHead>
-                      <TableHead>Waktu</TableHead>
-                      <TableHead>Kelas</TableHead>
+                      <TableHead>Kode</TableHead>
                       <TableHead>Mata Kuliah</TableHead>
+                      <TableHead>Kelas</TableHead>
+                      <TableHead>Dosen</TableHead>
+                      <TableHead>Jam</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Waktu Absen</TableHead>
                     </TableRow>
@@ -401,9 +441,21 @@ const StudentDashboard = () => {
                     {absensiHistory?.map((absen) => (
                       <TableRow key={absen.id}>
                         <TableCell>{new Date(absen.tanggal).toLocaleDateString('id-ID')}</TableCell>
-                        <TableCell>{absen.waktu_mulai}</TableCell>
-                        <TableCell className="font-medium">{absen.kelas_nama}</TableCell>
-                        <TableCell>{absen.matakuliah_nama}</TableCell>
+                        <TableCell className="font-mono text-xs">{absen.matakuliah_kode}</TableCell>
+                        <TableCell className="font-medium">{absen.matakuliah_nama}</TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{absen.kelas_nama}</div>
+                            <div className="text-xs text-muted-foreground">{absen.ruang}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{absen.dosen_nama}</div>
+                            <div className="text-xs text-muted-foreground">NIDN: {absen.dosen_nidn}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{absen.jam_mulai} - {absen.jam_selesai}</TableCell>
                         <TableCell>
                           <Badge variant={
                             absen.status === 'hadir' ? 'default' : 
