@@ -1,7 +1,13 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// API Configuration - Always use localhost for API
+// This ensures camera permissions work (secure context requirement)
+const getApiBaseUrl = () => {
+  // Force localhost for API regardless of how frontend is accessed
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance
 const api: AxiosInstance = axios.create({

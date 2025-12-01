@@ -27,13 +27,6 @@ const CameraAbsensi = () => {
   // Check camera support
   useEffect(() => {
     const checkCameraSupport = () => {
-      console.log('=== Camera Support Check ===');
-      console.log('URL:', window.location.href);
-      console.log('Protocol:', window.location.protocol);
-      console.log('Hostname:', window.location.hostname);
-      console.log('isSecureContext:', window.isSecureContext);
-      console.log('navigator.mediaDevices:', !!navigator.mediaDevices);
-      console.log('getUserMedia:', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
       
       // Check if we're on HTTPS or localhost
       const isSecureContext = window.isSecureContext || 
@@ -42,7 +35,6 @@ const CameraAbsensi = () => {
                               window.location.hostname === '127.0.0.1';
       
       if (!isSecureContext) {
-        console.error('Not a secure context!');
         const currentUrl = window.location.href;
         const localhostUrl = currentUrl.replace(/http:\/\/[^\/]+/, 'http://localhost:8081');
         
@@ -76,7 +68,6 @@ const CameraAbsensi = () => {
 
       // Check if mediaDevices API is available
       if (!navigator.mediaDevices) {
-        console.error('navigator.mediaDevices not available');
         setCameraSupported(false);
         toast({
           title: "API Tidak Tersedia",
@@ -88,7 +79,6 @@ const CameraAbsensi = () => {
       }
 
       if (!navigator.mediaDevices.getUserMedia) {
-        console.error('getUserMedia not available');
         setCameraSupported(false);
         toast({
           title: "getUserMedia Tidak Tersedia",
@@ -99,7 +89,6 @@ const CameraAbsensi = () => {
         return;
       }
 
-      console.log('✅ Camera support check passed');
       setCameraSupported(true);
     };
 
@@ -216,12 +205,21 @@ const CameraAbsensi = () => {
         // In real implementation, you would send the image to face recognition API
         // For now, we just submit the attendance
         
+        if (!sesiId) {
+          toast({
+            title: "Error",
+            description: "Sesi ID tidak ditemukan. Refresh halaman dan coba lagi.",
+            variant: "destructive"
+          });
+          setCapturing(false);
+          return;
+        }
+        
         const response = await apiPost('/absensi', {
-          sesi_id: parseInt(sesiId || '0'),
-          nim: nim,
+          sesi_id: parseInt(sesiId),
+          nim: nim.trim(),
           status: 'hadir',
-          metode: 'webcam',
-          waktu_absen: new Date().toISOString()
+          metode: 'webcam'
         });
 
         if (response.success) {
@@ -249,22 +247,6 @@ const CameraAbsensi = () => {
     };
   }, []);
 
-  const showDebugInfo = () => {
-    const info = `
-=== Informasi Debug ===
-URL: ${window.location.href}
-Protocol: ${window.location.protocol}
-Hostname: ${window.location.hostname}
-Secure Context: ${window.isSecureContext}
-MediaDevices Available: ${!!navigator.mediaDevices}
-getUserMedia Available: ${!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
-User Agent: ${navigator.userAgent}
-    `;
-    
-    alert(info);
-    console.log(info);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
@@ -277,14 +259,9 @@ User Agent: ${navigator.userAgent}
               </p>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={showDebugInfo}>
-              Debug Info
-            </Button>
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              <X className="mr-2 h-4 w-4" /> Tutup
-            </Button>
-          </div>
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            <X className="mr-2 h-4 w-4" /> Tutup
+          </Button>
         </div>
 
         {!cameraSupported && (
