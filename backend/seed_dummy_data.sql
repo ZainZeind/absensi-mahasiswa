@@ -98,7 +98,7 @@ INSERT INTO sesi_absensi (kelas_id, tanggal, jam_mulai, jam_selesai, materi, sta
 -- 8. CONTOH DATA ABSENSI
 -- ============================================
 -- Beberapa mahasiswa sudah absen di sesi pertama
-INSERT INTO absensi (sesi_id, mahasiswa_id, status, metode_absensi, waktu_absen) VALUES
+INSERT INTO absensi (sesi_id, mahasiswa_id, status, metode, waktu_absen) VALUES
 (1, 1, 'hadir', 'webcam', NOW()),
 (1, 2, 'hadir', 'webcam', NOW() - INTERVAL 5 MINUTE),
 (1, 3, 'hadir', 'webcam', NOW() - INTERVAL 10 MINUTE);

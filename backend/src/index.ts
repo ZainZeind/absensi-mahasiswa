@@ -5,11 +5,15 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import deviceApiRouter from './routes/deviceApi';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
 // Middleware
 app.use(cors({
@@ -1265,9 +1269,39 @@ app.use((req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 API: http://localhost:${PORT}/api`);
-});
+if (USE_HTTPS) {
+  // Create self-signed certificate directory if not exists
+  const certDir = path.join(__dirname, '..', 'ssl');
+  if (!fs.existsSync(certDir)) {
+    fs.mkdirSync(certDir, { recursive: true });
+  }
+
+  const certPath = path.join(certDir, 'cert.pem');
+  const keyPath = path.join(certDir, 'key.pem');
+
+  // Check if certificates exist
+  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    const httpsOptions = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
+    };
+
+    https.createServer(httpsOptions, app).listen(PORT, () => {
+      console.log(`🚀 Server running on https://localhost:${PORT}`);
+      console.log(`📡 API: https://localhost:${PORT}/api`);
+      console.log('🔒 HTTPS enabled');
+    });
+  } else {
+    console.error('❌ SSL certificates not found!');
+    console.log('Generate certificates with:');
+    console.log(`openssl req -nodes -new -x509 -keyout ${keyPath} -out ${certPath} -days 365`);
+    process.exit(1);
+  }
+} else {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📡 API: http://localhost:${PORT}/api`);
+  });
+}
 
 export default app;

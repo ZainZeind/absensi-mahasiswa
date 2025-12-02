@@ -83,8 +83,19 @@ DB_PASSWORD=your_password
 DB_NAME=absensi_kampus
 DB_PORT=3306
 PORT=3001
+USE_HTTPS=true
 JWT_SECRET=your-super-secret-key
 ```
+
+**Untuk HTTPS (Opsional):**
+
+```bash
+# Generate SSL certificate untuk development
+cd backend
+./generate-ssl.sh
+```
+
+⚠️ **Note**: Browser akan menampilkan warning keamanan karena menggunakan self-signed certificate. Klik "Advanced" → "Proceed to localhost" untuk melanjutkan.
 
 ### 4. Setup Frontend
 
